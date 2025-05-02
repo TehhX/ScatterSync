@@ -41,5 +41,11 @@ CMakeUserPresets.json
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 
-# Build
-build/*
+# Start of TehX ignores
+
+# Build folder
+build/
+
+# Personal scripts (prepend any script with PERSONAL_ to ignore)
+PERSONAL_*.bat
+PERSONAL_*.sh
