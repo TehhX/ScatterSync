@@ -20,13 +20,8 @@ CMakeUserPresets.json
 # External projects
 *-prefix/
 
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+### VisualStudioCode (Edited by TehX) ###
+.vscode/
 
 # Local History for Visual Studio Code
 .history/

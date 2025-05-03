@@ -6,9 +6,6 @@ using u_llong = unsigned long long;
 
 // Contains specific definitions for Scatter Sync.
 namespace ssdef {
-    // Window size in the X axis, or width.
-    constexpr int WSX { 800 };
-
-    // Window size in the Y axis, or height.
-    constexpr int WSY { 600 };
+    constexpr int WSX { 800 }; // Window size in the X axis, or width.
+    constexpr int WSY { 600 }; // Window size in the Y axis, or height.
 }
