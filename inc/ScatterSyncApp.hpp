@@ -1,10 +1,18 @@
 #pragma once
 
 #include <wx/app.h>
+#include <wx/frame.h>
 
-#include <ScatterSyncDefs.hpp>
+#include <ManifestManip.hpp>
+#include <UserFileControl.hpp>
+#include <GitControl.hpp>
 
 class ScatterSyncApp : public wxApp {
-    virtual bool OnInit() override final;
+    ManifestManip manManip {};
+    UserFileControl userCtrl {};
+    GitControl gitCtrl {};
 
+    wxFrame* mainFrame;
+
+    virtual bool OnInit() override final;
 };

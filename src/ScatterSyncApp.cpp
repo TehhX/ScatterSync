@@ -7,11 +7,11 @@
 wxIMPLEMENT_APP(ScatterSyncApp);
 
 bool ScatterSyncApp::OnInit() {
-    auto frame = new wxFrame { nullptr, wxID_ANY, "Scatter Sync" };
+    mainFrame = new wxFrame { nullptr, wxID_ANY, "Scatter Sync" };
 
-    frame->SetClientSize(ssdef::WSX, ssdef::WSY);
-    frame->Center();
-    frame->Show();
+    mainFrame->SetClientSize(ssdef::WSX, ssdef::WSY);
+    mainFrame->Center();
+    mainFrame->Show();
 
     return true;
 }
