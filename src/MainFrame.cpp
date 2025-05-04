@@ -8,11 +8,9 @@ MainFrame::MainFrame()
     SetBackgroundColour(ssdef::DARK_GREY);
     Center();
 
-    pushBttn = new wxButton { this, wxID_ANY, "Push", { 30, 20 }, { 60, -1 }};
-    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 100, 20 }, { 60, -1 }};
+    pushBttn = new wxButton { this, wxID_ANY, "Push", { 30, 10 }, { 60, -1 }};
+    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 100, 10 }, { 60, -1 }};
     fileList = new FileList { this };
-
-    CaptureMouse();
 
     Show();
 }

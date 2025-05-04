@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string_view>
 
 #include <wx/wx.h>
 
@@ -8,14 +9,16 @@
 
 class FileList : public wxPanel {
     std::vector<FileItem*> fileItems;
+    int maxScroll { FileItem::itemMargin };
 
 public:
+    static constexpr int topMargin { 60 };
+    static constexpr int scrollAmount { 10 };
+
     FileList(wxWindow* parent);
 
     void addFileItem(FileItem* fileItem);
-
-    void changeFileName(int index, std::string_view newName);
-    void changeFilePath(int index, std::string_view newPath);
+    void addFileItem(std::string name, std::string path);
 
     void scrollUp();
     void scrollDown();

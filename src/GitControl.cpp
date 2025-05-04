@@ -52,6 +52,15 @@ GitControl& GitControl::setEdited() {
     return *this;
 }
 
+GitControl& GitControl::resetChanges() {
+    if (!isActive)
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+    
+    // TODO
+
+    return *this;
+};
+
 GitControl& GitControl::exitGitCtrl() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);

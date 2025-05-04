@@ -34,6 +34,7 @@ public:
     GitControl& pull();
     GitControl& push();
     GitControl& setEdited();
+    GitControl& resetChanges();
 
     GitControl& exitGitCtrl();
 
