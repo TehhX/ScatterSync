@@ -21,7 +21,9 @@ include(${wxWidgets_USE_FILE})
 
 # Source .cpp files.
 set(SRC
+    src/FileList.cpp
     src/GitControl.cpp
+    src/MainFrame.cpp
     src/ManifestManip.cpp
     src/ScatterSyncApp.cpp
     src/UserFileControl.cpp
