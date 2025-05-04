@@ -12,5 +12,7 @@ MainFrame::MainFrame()
     pullBttn = new wxButton { this, wxID_ANY, "Pull", { 100, 20 }, { 60, -1 }};
     fileList = new FileList { this };
 
+    CaptureMouse();
+
     Show();
 }

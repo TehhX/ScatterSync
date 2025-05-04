@@ -21,6 +21,7 @@ include(${wxWidgets_USE_FILE})
 
 # Source .cpp files.
 set(SRC
+    src/FileItem.cpp
     src/FileList.cpp
     src/GitControl.cpp
     src/MainFrame.cpp
