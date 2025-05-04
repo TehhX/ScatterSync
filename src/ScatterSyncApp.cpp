@@ -1,7 +1,5 @@
 #include <ScatterSyncApp.hpp>
 
-#include <wx/frame.h>
-
 #include <ScatterSyncDefs.hpp>
 
 wxIMPLEMENT_APP(ScatterSyncApp);

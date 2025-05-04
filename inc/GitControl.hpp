@@ -2,32 +2,40 @@
 
 #include <ScatterSyncDefs.hpp>
 
-#include <exception>
-#include <string_view>
+#include <stdexcept>
+#include <string>
 
-enum class GitCtrlErrCode : u_char {
-    FAIL_PULL,
-    FAIL_PUSH,
-    OUTSIDE_REPO,
-    UNPUSHED_EXIT
-};
-
-class GitCtrlErr : public std::exception {
-    GitCtrlErrCode errorCode;
-    std::string_view message;
-
+class GitCtrlErr : public std::runtime_error {
 public:
-    GitCtrlErr(GitCtrlErrCode errorCode, std::string_view message);
+    enum ErrCode : u_char {
+        NOT_INSTALLED,
+        FAIL_PULL,
+        FAIL_PUSH,
+        OUTSIDE_REPO,
+        UNPUSHED_EXIT,
+        UNINITIALIZED,
+        DOUBLE_INIT
+    };
+
+    const ErrCode errorCode;
+
+    GitCtrlErr(const std::string& message, ErrCode errorCode);
 };
 
 class GitControl {
+    bool isActive { false };
     bool isPushed { false };
 
 public:
-    GitControl();
+    GitControl() = default;
+
+    GitControl& init();
 
     GitControl& pull();
     GitControl& push();
+    GitControl& setEdited();
 
-    void exitGitCtrl();
+    GitControl& exitGitCtrl();
+
+    ~GitControl();
 };
