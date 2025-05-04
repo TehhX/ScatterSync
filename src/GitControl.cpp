@@ -8,13 +8,13 @@ GitCtrlErr::GitCtrlErr(const std::string& message, ErrCode errorCode)
 
 GitControl& GitControl::init() {
     if (isActive)
-        throw GitCtrlErr("Attempted to init twice without exiting.", GitCtrlErr::DOUBLE_INIT);
+        throw GitCtrlErr("Attempted to init twice without exiting.", GitCtrlErr::BAD_INIT);
 
     if (system("git --version"))
-        throw GitCtrlErr("Git is not installed.", GitCtrlErr::NOT_INSTALLED);
+        throw GitCtrlErr("Git is not installed.", GitCtrlErr::FAIL_GITEXEC);
 
     else if (system("git status"))
-        throw GitCtrlErr("Scatter Sync executable is not inside repository folder.", GitCtrlErr::OUTSIDE_REPO);
+        throw GitCtrlErr("Scatter Sync executable is not inside repository folder.", GitCtrlErr::FAIL_GITEXEC);
 
     isActive = true;
 
@@ -23,29 +23,32 @@ GitControl& GitControl::init() {
 
 GitControl& GitControl::pull() {
     if (!isActive)
-        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
     if (system("git pull"))
-        throw GitCtrlErr("Pull failed.", GitCtrlErr::FAIL_PULL);
+        throw GitCtrlErr("Pull failed.", GitCtrlErr::FAIL_MANIP);
     else
         return *this;
 }
 
 GitControl& GitControl::push() {
     if (!isActive)
-        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
-    if (system("git add .") || system("git push"))
-        throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_PUSH);
-    else
-        isPushed = true;
+    if (system("git push"))
+        throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
+
+    isPushed = true;
 
     return *this;
 }
 
 GitControl& GitControl::setEdited() {
     if (!isActive)
-        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
+
+    if (system("git add ."))
+        throw GitCtrlErr("Could not add files to Git.",GitCtrlErr::FAIL_MANIP);
 
     isPushed = false;
 
@@ -54,16 +57,18 @@ GitControl& GitControl::setEdited() {
 
 GitControl& GitControl::resetChanges() {
     if (!isActive)
-        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
     
-    // TODO
+    if (system("git restore --staged .") || system("git restore ."))
+        throw GitCtrlErr("Couldn't reset changes.", GitCtrlErr::FAIL_MANIP);
 
     return *this;
 };
 
 GitControl& GitControl::exitGitCtrl() {
     if (!isActive)
-        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::UNINITIALIZED);
+        throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
+
     if (!isPushed)
         throw GitCtrlErr("Attempted to exit program without pushing.", GitCtrlErr::UNPUSHED_EXIT);
 
@@ -74,7 +79,7 @@ GitControl& GitControl::exitGitCtrl() {
 
 GitControl::~GitControl() {
     if (isActive) {
-        std::cerr << "GitControl destructed before calling \"exitGitCtrl\".\n";
+        std::cerr << "GitControl destructed before calling \"GitControl& exitGitCtrl()\".\n";
         exit(-1);
     }
 }

@@ -4,12 +4,15 @@
 
 MainFrame::MainFrame()
 : wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
-    SetClientSize(ssdef::WSX, ssdef::WSY);
-    SetBackgroundColour(ssdef::DARK_GREY);
+    SetClientSize(SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY);
+    SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     Center();
+    Show();
 
-    pushBttn = new wxButton { this, wxID_ANY, "Push", { 30, 10 }, { 60, -1 }};
-    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 100, 10 }, { 60, -1 }};
+    initBttn = new wxButton { this, wxID_ANY, "Init", { 30, 10 }, { 60, -1 } };
+    pushBttn = new wxButton { this, wxID_ANY, "Push", { 100, 10 }, { 60, -1 } };
+    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 170, 10 }, { 60, -1 } };
+
     fileList = new FileList { this };
 
     Show();

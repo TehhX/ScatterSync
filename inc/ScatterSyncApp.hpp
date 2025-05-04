@@ -1,7 +1,5 @@
 #pragma once
 
-#include <wx/wx.h>
-
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 #include <UserFileControl.hpp>

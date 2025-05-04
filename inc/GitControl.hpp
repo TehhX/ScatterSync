@@ -8,13 +8,10 @@
 class GitCtrlErr : public std::runtime_error {
 public:
     enum ErrCode : u_char {
-        NOT_INSTALLED,
-        FAIL_PULL,
-        FAIL_PUSH,
-        OUTSIDE_REPO,
+        FAIL_GITEXEC,
+        FAIL_MANIP,
         UNPUSHED_EXIT,
-        UNINITIALIZED,
-        DOUBLE_INIT
+        BAD_INIT
     };
 
     const ErrCode errorCode;

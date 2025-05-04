@@ -1,9 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <string_view>
-
-#include <wx/wx.h>
+#include <string>
 
 #include <FileItem.hpp>
 
@@ -17,8 +15,7 @@ public:
 
     FileList(wxWindow* parent);
 
-    void addFileItem(FileItem* fileItem);
-    void addFileItem(std::string name, std::string path);
+    void addFileItem(const std::string& name, const std::string& path);
 
     void scrollUp();
     void scrollDown();
