@@ -4,13 +4,15 @@
 
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY - topMargin } } {
+    Hide();
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
-    Show();
-    Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
+    parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     for (size_t i { 0 }; i < 50; i++) {
         addFileItem(std::to_string(i), std::to_string(i));
     }
+
+    Show();
 }
 
 void FileList::addFileItem(const std::string& name, const std::string& path) {

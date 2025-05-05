@@ -8,11 +8,11 @@ using u_llong = unsigned long long;
 
 // Contains specific definitions for Scatter Sync.
 namespace SS_GLOBALDEFS {
-    constexpr int WSX { 800 }; // Window size in the X axis, or width.
-    constexpr int WSY { 600 }; // Window size in the Y axis, or height.
+    inline constexpr int WSX { 800 }; // Window size in the X axis, or width.
+    inline constexpr int WSY { 600 }; // Window size in the Y axis, or height.
 
-    const wxColor BLACK { 0, 0, 0 };
-    const wxColor DARK_GREY { 18, 18, 18 };
-    const wxColor LIGHT_GREY { 64, 64, 64 };
-    const wxColor WHITE { 255, 255, 255 };
+    inline static const wxColor BLACK { 0, 0, 0 };
+    inline static const wxColor DARK_GREY { 18, 18, 18 };
+    inline static const wxColor LIGHT_GREY { 64, 64, 64 };
+    inline static const wxColor WHITE { 255, 255, 255 };
 }

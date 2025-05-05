@@ -5,11 +5,7 @@
 #include <UserFileControl.hpp>
 #include <GitControl.hpp>
 
-class ScatterSyncApp : public wxApp {
-    ManifestManip manManip {};
-    UserFileControl userCtrl {};
-    GitControl gitCtrl {};
-
+class ScatterSyncApp final : public wxApp {
     MainFrame* mainFrame;
 
 public:

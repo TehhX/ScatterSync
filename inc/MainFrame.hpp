@@ -9,6 +9,10 @@ class MainFrame : public wxFrame {
 
     FileList* fileList;
 
+    void initEventBttn(wxCommandEvent& WXUNUSED(event));
+    void pushEventBttn(wxCommandEvent& WXUNUSED(event));
+    void pullEventBttn(wxCommandEvent& WXUNUSED(event));
+
 public:
     MainFrame();
 };

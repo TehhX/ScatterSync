@@ -13,7 +13,7 @@ class FileList : public wxPanel {
 
 public:
     static constexpr int topMargin { 60 };
-    static constexpr int scrollAmount { 5 };
+    static constexpr int scrollAmount { 7 };
 
     FileList(wxWindow* parent);
 
