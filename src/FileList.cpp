@@ -6,6 +6,7 @@ FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY - topMargin } } {
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
     Show();
+    Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     for (size_t i { 0 }; i < 50; i++) {
         addFileItem(std::to_string(i), std::to_string(i));
@@ -23,16 +24,18 @@ void FileList::addFileItem(const std::string& name, const std::string& path) {
     maxScroll += FileItem::itemHeight;
 }
 
-void FileList::scrollUp() {
-    SetPosition({ 0, GetPosition().y + scrollAmount });
+void FileList::scroll(wxMouseEvent& me) {
+    if (me.GetWheelRotation() > 0) {
+        SetPosition({ 0, GetPosition().y + scrollAmount });
 
-    if (GetPosition().y < 0)
-        SetPosition({ 0, 0 });
-}
+        if (GetPosition().y > topMargin)
+            SetPosition({ 0, topMargin });
+    } else {
+        SetPosition({ 0, GetPosition().y - scrollAmount });
 
-void FileList::scrollDown() {
-    SetPosition({ 0, GetPosition().y - scrollAmount });
+        if (GetPosition().y < -maxScroll)
+            SetPosition({ 0, -maxScroll });
+    }
 
-    if (GetPosition().y > maxScroll)
-        SetPosition({ 0, maxScroll });
+    std::cout << "Max: " << maxScroll << ", Current: " << GetPosition().y << '\n';
 }

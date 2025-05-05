@@ -3,20 +3,21 @@
 #include <vector>
 #include <string>
 
+#include <ScatterSyncDefs.hpp>
+
 #include <FileItem.hpp>
 
 class FileList : public wxPanel {
     std::vector<FileItem*> fileItems;
-    int maxScroll { FileItem::itemMargin };
+    int maxScroll { FileItem::itemMargin - SS_GLOBALDEFS::WSY };
 
 public:
     static constexpr int topMargin { 60 };
-    static constexpr int scrollAmount { 10 };
+    static constexpr int scrollAmount { 5 };
 
     FileList(wxWindow* parent);
 
     void addFileItem(const std::string& name, const std::string& path);
 
-    void scrollUp();
-    void scrollDown();
+    void scroll(wxMouseEvent& me);
 };
