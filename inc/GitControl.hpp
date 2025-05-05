@@ -33,7 +33,7 @@ public:
     GitControl& setEdited();
     GitControl& resetChanges();
 
-    GitControl& exitGitCtrl();
+    GitControl& exitGitCtrl(bool warnUnpushed = true); // Always warn unpushed unless user explicitly overrides warning.
 
     ~GitControl();
 };

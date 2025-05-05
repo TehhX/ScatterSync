@@ -3,18 +3,23 @@
 #include <cstdlib>
 #include <iostream>
 
+/*
+    TODO: Look into CreateProcess(...) from Windows.h when building for Windows to replace system(...). 
+    Linux may also have a better alternative to system(...).
+*/
+
 GitCtrlErr::GitCtrlErr(const std::string& message, ErrCode errorCode)
 : std::runtime_error { message }, errorCode { errorCode } {}
 
 GitControl& GitControl::init() {
     if (isActive)
-        throw GitCtrlErr("Attempted to init twice without exiting.", GitCtrlErr::BAD_INIT);
+        throw GitCtrlErr("Git is already initialized.", GitCtrlErr::BAD_INIT);
 
     if (system("git --version"))
-        throw GitCtrlErr("Git is not installed.", GitCtrlErr::FAIL_GITEXEC);
+        throw GitCtrlErr("Git is not installed. Please install and retry init.", GitCtrlErr::FAIL_GITEXEC);
 
     else if (system("git status"))
-        throw GitCtrlErr("Scatter Sync executable is not inside repository folder.", GitCtrlErr::FAIL_GITEXEC);
+        throw GitCtrlErr("Scatter Sync executable is not inside repository folder. Please fix and retry initialization.", GitCtrlErr::FAIL_GITEXEC);
 
     isActive = true;
 
@@ -34,6 +39,9 @@ GitControl& GitControl::pull() {
 GitControl& GitControl::push() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
+
+    if (isPushed)
+        throw GitCtrlErr("Already pushed.", GitCtrlErr::FAIL_MANIP);
 
     if (system("git push"))
         throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
@@ -65,12 +73,12 @@ GitControl& GitControl::resetChanges() {
     return *this;
 };
 
-GitControl& GitControl::exitGitCtrl() {
+GitControl& GitControl::exitGitCtrl(bool warnUnpushed) {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
-    if (!isPushed)
-        throw GitCtrlErr("Attempted to exit program without pushing.", GitCtrlErr::UNPUSHED_EXIT);
+    if (!isPushed && warnUnpushed)
+        throw GitCtrlErr("Are you sure you want to exit ScatterSync without pushing saved changes?", GitCtrlErr::UNPUSHED_EXIT);
 
     isActive = false;
     
