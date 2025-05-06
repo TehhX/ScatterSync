@@ -6,6 +6,8 @@
 /*
     TODO: Look into CreateProcess(...) from Windows.h when building for Windows to replace system(...). 
     Linux may also have a better alternative to system(...).
+
+    Further: Look into wxProcess(...) and/or wxExecute(...)
 */
 
 GitCtrlErr::GitCtrlErr(const std::string& message, ErrCode errorCode)
