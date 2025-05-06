@@ -41,6 +41,5 @@ CMakeUserPresets.json
 # Build folder
 build/
 
-# Personal scripts (prepend any script with PERSONAL_ to ignore)
-PERSONAL_*.bat
-PERSONAL_*.sh
+# Personal files
+PERSONAL_*.*
