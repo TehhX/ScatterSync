@@ -10,10 +10,7 @@
     Further: Look into wxProcess(...) and/or wxExecute(...)
 */
 
-GitCtrlErr::GitCtrlErr(const std::string& message, ErrCode errorCode)
-: std::runtime_error { message }, errorCode { errorCode } {}
-
-GitControl& GitControl::init() {
+void GitControl::init() {
     if (isActive)
         throw GitCtrlErr("Git is already initialized.", GitCtrlErr::BAD_INIT);
 
@@ -24,21 +21,17 @@ GitControl& GitControl::init() {
         throw GitCtrlErr("Scatter Sync executable is not inside repository folder. Please fix and retry initialization.", GitCtrlErr::FAIL_GITEXEC);
 
     isActive = true;
-
-    return *this;
 }
 
-GitControl& GitControl::pull() {
+void GitControl::pull() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
     if (system("git pull"))
         throw GitCtrlErr("Pull failed.", GitCtrlErr::FAIL_MANIP);
-    else
-        return *this;
 }
 
-GitControl& GitControl::push() {
+void GitControl::push() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
@@ -49,11 +42,9 @@ GitControl& GitControl::push() {
         throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
 
     isPushed = true;
-
-    return *this;
 }
 
-GitControl& GitControl::setEdited() {
+void GitControl::setEdited() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
@@ -61,21 +52,17 @@ GitControl& GitControl::setEdited() {
         throw GitCtrlErr("Could not add files to Git.",GitCtrlErr::FAIL_MANIP);
 
     isPushed = false;
-
-    return *this;
 }
 
-GitControl& GitControl::resetChanges() {
+void GitControl::resetChanges() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
     
     if (system("git restore --staged .") || system("git restore ."))
         throw GitCtrlErr("Couldn't reset changes.", GitCtrlErr::FAIL_MANIP);
-
-    return *this;
 };
 
-GitControl& GitControl::exitGitCtrl(bool warnUnpushed) {
+void GitControl::exitGitCtrl(bool warnUnpushed) {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
@@ -83,8 +70,6 @@ GitControl& GitControl::exitGitCtrl(bool warnUnpushed) {
         throw GitCtrlErr("Are you sure you want to exit ScatterSync without pushing saved changes?", GitCtrlErr::UNPUSHED_EXIT);
 
     isActive = false;
-    
-    return *this;
 }
 
 GitControl::~GitControl() {

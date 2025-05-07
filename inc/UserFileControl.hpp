@@ -8,18 +8,17 @@
 class UserFileErr : public std::runtime_error {
 public:
     enum ErrCode : u_char {
-        FAIL_MOVE
+        FAIL_MOVE,
+        FAIL_CHECKSTAT
     };
 
-    const ErrCode errorCode;
+    const ErrCode errCode;
 
-    UserFileErr(const std::string& message, ErrCode errorCode);
+    inline UserFileErr(const std::string& message, ErrCode errCode)
+    : std::runtime_error { message }, errCode { errCode } {}
 };
 
-class UserFileControl {
-public:
-    UserFileControl() = delete;
-
-    static bool fileIsInRepo(std::string_view name);
-    static void moveFile(std::string_view src, std::string_view dest);
-};
+namespace UserFileControl {
+    bool fileIsInRepo(std::string_view name);
+    void moveFile(std::string_view src, std::string_view dest);
+}

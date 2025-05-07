@@ -14,9 +14,10 @@ public:
         BAD_INIT
     };
 
-    const ErrCode errorCode;
+    const ErrCode errCode;
 
-    GitCtrlErr(const std::string& message, ErrCode errorCode);
+    inline GitCtrlErr(const std::string& mssg, ErrCode errCode)
+    : std::runtime_error { mssg }, errCode { errCode } {}
 };
 
 class GitControl {
@@ -26,14 +27,14 @@ class GitControl {
 public:
     GitControl() = default;
 
-    GitControl& init();
+    void init();
 
-    GitControl& pull();
-    GitControl& push();
-    GitControl& setEdited();
-    GitControl& resetChanges();
+    void pull();
+    void push();
+    void setEdited();
+    void resetChanges();
 
-    GitControl& exitGitCtrl(bool warnUnpushed = true); // Always warn unpushed unless user explicitly overrides warning.
+    void exitGitCtrl(bool warnUnpushed = true); // Always warn unpushed unless user explicitly overrides warning.
 
     ~GitControl();
 };

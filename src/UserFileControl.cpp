@@ -1,8 +1,5 @@
 #include <UserFileControl.hpp>
 
-UserFileErr::UserFileErr(const std::string& message, ErrCode errorCode)
-: std::runtime_error { message }, errorCode { errorCode } {}
-
 bool UserFileControl::fileIsInRepo(std::string_view name) {
     // TODO
     return false;

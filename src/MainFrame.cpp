@@ -1,6 +1,7 @@
 #include <MainFrame.hpp>
 
 #include <ScatterSyncDefs.hpp>
+#include <ManifestManip.hpp>
 
 #define STD_GCE_POP new wxMessageDialog { this, gce.what(), wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK }
 #define YN_GCE_POP new wxMessageDialog { this, gce.what(), wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxYES | wxNO }
@@ -24,7 +25,7 @@ MainFrame::MainFrame()
     pullBttn->Bind(wxEVT_BUTTON, &MainFrame::pullEventBttn, this);
 
     // A temporary command event is required to initialize Git in the same way as the init button on program start.
-    wxCommandEvent tempEv {};
+    wxCommandEvent tempEv;
     initEventBttn(tempEv);
 
     Show();
@@ -35,8 +36,8 @@ void MainFrame::initEventBttn(wxCommandEvent& WXUNUSED(event)) {
         gCtrl.init();
     }
     catch (const GitCtrlErr& gce) {
-        auto md { STD_GCE_POP };
-        md->ShowModal();
+        auto mssgDialog { STD_GCE_POP };
+        mssgDialog->ShowModal();
     }
 }
 
@@ -45,8 +46,8 @@ void MainFrame::pushEventBttn(wxCommandEvent& WXUNUSED(event)) {
         gCtrl.push();
     }
     catch (const GitCtrlErr& gce) {
-        auto md { STD_GCE_POP };
-        md->ShowModal();
+        auto mssgDialog { STD_GCE_POP };
+        mssgDialog->ShowModal();
     }
 }
 
@@ -55,28 +56,31 @@ void MainFrame::pullEventBttn(wxCommandEvent& WXUNUSED(event)) {
         gCtrl.pull();
     }
     catch (const GitCtrlErr& gce) {
-        auto md { STD_GCE_POP };
-        md->ShowModal();
+        auto mssgDialog { STD_GCE_POP };
+        mssgDialog->ShowModal();
     }
 }
 
 void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
     try {
         gCtrl.exitGitCtrl();
+        ManifestManip::closeFiles();
         Destroy();
     }
     catch (const GitCtrlErr& gce) {
-        switch(gce.errorCode) {
+        switch(gce.errCode) {
         case GitCtrlErr::BAD_INIT:
+            ManifestManip::closeFiles();
             Destroy();
             break;
 
         case GitCtrlErr::UNPUSHED_EXIT:
-            auto md { YN_GCE_POP };
+            auto mssgDialog { YN_GCE_POP };
 
-            switch(md->ShowModal()) {
+            switch(mssgDialog->ShowModal()) {
             case wxID_YES:
                 gCtrl.exitGitCtrl(false);
+                ManifestManip::closeFiles();
                 Destroy();
                 break;
 
