@@ -21,6 +21,7 @@ void GitControl::init() {
         throw GitCtrlErr("Scatter Sync executable is not inside repository folder. Please fix and retry initialization.", GitCtrlErr::FAIL_GITEXEC);
 
     isActive = true;
+    isPushed = false;
 }
 
 void GitControl::pull() {

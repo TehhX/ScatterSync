@@ -39,7 +39,7 @@ class ManifestManip {
     static inline constexpr char* fileNameLocal { "scatterSyncLocal.bin" };
     static inline constexpr char* fileNameCloud { "scatterSyncCloud.bin" };
 
-    static std::fstream fileStream;
+    static inline std::fstream fileStream;
 
     static void openFile(const char* name);
 

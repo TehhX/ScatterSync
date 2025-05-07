@@ -22,7 +22,7 @@ public:
 
 class GitControl {
     bool isActive { false };
-    bool isPushed { false };
+    bool isPushed;
 
 public:
     GitControl() = default;

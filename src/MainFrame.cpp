@@ -3,8 +3,17 @@
 #include <ScatterSyncDefs.hpp>
 #include <ManifestManip.hpp>
 
-#define STD_GCE_POP new wxMessageDialog { this, gce.what(), wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK }
-#define YN_GCE_POP new wxMessageDialog { this, gce.what(), wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxYES | wxNO }
+// Displays a simple popup window with MSSG as the message and no further user input.
+#define POPUP(MSSG) \
+    auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK } }; \
+    mssgDialog->ShowModal();
+
+// Displays a yes/no popup window with MSSG as the message, executes EXEC if yes, nothing if no.
+#define YN_POP(MSSG, EXEC) \
+    auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxYES | wxNO } }; \
+    if (mssgDialog->ShowModal() == wxID_YES) { \
+        EXEC \
+    }
 
 MainFrame::MainFrame()
 : wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
@@ -31,62 +40,55 @@ MainFrame::MainFrame()
     Show();
 }
 
-void MainFrame::initEventBttn(wxCommandEvent& WXUNUSED(event)) {
-    try {
-        gCtrl.init();
-    }
-    catch (const GitCtrlErr& gce) {
-        auto mssgDialog { STD_GCE_POP };
-        mssgDialog->ShowModal();
-    }
+// Tries to execute GitControl::PURPOSE, e.g. gCtrl.init(). If an error is thrown, display a simple popup describing the error.
+#define GIT_BUTTON(PURPOSE) \
+void MainFrame::##PURPOSE##EventBttn(wxCommandEvent& WXUNUSED(event)) { \
+    try { \
+        gCtrl.PURPOSE(); \
+    } catch (const GitCtrlErr& gce) { \
+        POPUP(gce.what()) \
+    } \
 }
 
-void MainFrame::pushEventBttn(wxCommandEvent& WXUNUSED(event)) {
-    try {
-        gCtrl.push();
-    }
-    catch (const GitCtrlErr& gce) {
-        auto mssgDialog { STD_GCE_POP };
-        mssgDialog->ShowModal();
-    }
-}
-
-void MainFrame::pullEventBttn(wxCommandEvent& WXUNUSED(event)) {
-    try {
-        gCtrl.pull();
-    }
-    catch (const GitCtrlErr& gce) {
-        auto mssgDialog { STD_GCE_POP };
-        mssgDialog->ShowModal();
-    }
-}
+GIT_BUTTON(init)
+GIT_BUTTON(push)
+GIT_BUTTON(pull)
 
 void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
     try {
-        gCtrl.exitGitCtrl();
-        ManifestManip::closeFiles();
-        Destroy();
-    }
-    catch (const GitCtrlErr& gce) {
-        switch(gce.errCode) {
-        case GitCtrlErr::BAD_INIT:
-            ManifestManip::closeFiles();
+        try {
+            gCtrl.exitGitCtrl();
+            ManifestManip::closeFile();
             Destroy();
-            break;
+        }
+        catch (const GitCtrlErr& gce) {
+            switch(gce.errCode) {
+            default:
+                throw gce;
 
-        case GitCtrlErr::UNPUSHED_EXIT:
-            auto mssgDialog { YN_GCE_POP };
-
-            switch(mssgDialog->ShowModal()) {
-            case wxID_YES:
-                gCtrl.exitGitCtrl(false);
-                ManifestManip::closeFiles();
+            case GitCtrlErr::BAD_INIT:
+                ManifestManip::closeFile();
                 Destroy();
-                break;
-
-            case wxID_NO:
                 return;
+
+            case GitCtrlErr::UNPUSHED_EXIT:
+                YN_POP(gce.what(),
+                    gCtrl.exitGitCtrl(false);
+                    ManifestManip::closeFile();
+                    Destroy();
+                    return;
+                )
             }
+        }
+    }
+    catch (const ManiManiErr& mme) {
+        switch (mme.errCode) {
+        default:
+            throw mme;
+
+        case ManiManiErr::FAIL_CLOSE:
+        case ManiManiErr::FAIL_WRITE:
+            YN_POP(mme.what(), Destroy();)
         }
     }
 }
