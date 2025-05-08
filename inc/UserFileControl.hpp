@@ -19,6 +19,8 @@ public:
 };
 
 namespace UserFileControl {
-    bool fileIsInRepo(std::string_view name);
     void moveFile(std::string_view src, std::string_view dest);
+
+    void moveToRepo(u_llong uniqueIdent);
+    void moveFromRepo(u_llong uniqueIdent);
 }

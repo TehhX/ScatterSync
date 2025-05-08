@@ -72,6 +72,9 @@ void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
                 return;
 
             case GitCtrlErr::UNPUSHED_EXIT:
+                if (!MainFrame::settings.exitPromptUnpushed)
+                    return;
+
                 YN_POP(gce.what(),
                     gCtrl.exitGitCtrl(false);
                     ManifestManip::closeFile();
@@ -88,7 +91,9 @@ void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
 
         case ManiManiErr::FAIL_CLOSE:
         case ManiManiErr::FAIL_WRITE:
-            YN_POP(mme.what(), Destroy();)
+            YN_POP(mme.what(),
+                Destroy();
+            )
         }
     }
 }

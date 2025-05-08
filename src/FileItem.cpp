@@ -2,9 +2,12 @@
 
 #include <ScatterSyncDefs.hpp>
 
-FileItem::FileItem(wxWindow* parent, std::string genericName, std::string filePath)
-: wxPanel { parent, wxID_ANY, wxDefaultPosition, { SS_GLOBALDEFS::WSX, itemHeight } } {
+#include <ManifestManip.hpp>
+
+FileItem::FileItem(wxWindow* parent, u_llong uniqueIdent)
+: wxPanel { parent, wxID_ANY, wxDefaultPosition, { SS_GLOBALDEFS::WSX, itemHeight } }, uniqueIdent { uniqueIdent } {
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
-    genNameField = new wxTextCtrl { this, wxID_ANY, genericName, { 0, 0 }, itemSize };
-    pathField = new wxTextCtrl { this, wxID_ANY, filePath, { itemWidth, 0 }, itemSize };
+
+    genNameField = new wxTextCtrl { this, wxID_ANY, ManifestManip::genNameOf(uniqueIdent), { 0, 0 }, itemSize };
+    pathField = new wxTextCtrl { this, wxID_ANY, ManifestManip::localPathOf(uniqueIdent), { itemWidth, 0 }, itemSize };
 }

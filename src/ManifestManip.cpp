@@ -1,5 +1,7 @@
 #include <ManifestManip.hpp>
 
+#include <iterator>
+
 void ManifestManip::openFile(const char* name) {
     if (fileStream.is_open())
         closeFile();
@@ -32,6 +34,37 @@ void ManifestManip::writeLocal() {
     openFile(fileNameLocal);
 
     // TODO: Write data
+}
+
+void ManifestManip::tryAccess(u_llong uniqueIdent) {
+    if (userFileInfo.find(uniqueIdent) == userFileInfo.end())
+        throw ManiManiErr("Identifier does not exist.", ManiManiErr::FAIL_ACCESS);
+}
+
+std::string& ManifestManip::genNameOf(u_llong uniqueIdent) {
+    tryAccess(uniqueIdent);
+
+    return userFileInfo[uniqueIdent].first;
+}
+
+std::string& ManifestManip::localPathOf(u_llong uniqueIdent) {
+    tryAccess(uniqueIdent);
+
+    return userFileInfo[uniqueIdent].second;
+}
+
+// Untested within the program, but tested in isolation.
+std::string ManifestManip::fileNameOf(u_llong uniqueIdent) {
+    tryAccess(uniqueIdent);
+
+    std::string name { localPathOf(uniqueIdent) };
+    auto i { static_cast<int>(name.length() - 1) };
+    while (i-- >= 0)
+        if (name[i] == '/')
+            return name.substr(i + 1);
+
+    // Only gets to this point if '/' is not found.
+    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_NAME);
 }
 
 void ManifestManip::readFiles() {

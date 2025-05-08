@@ -5,8 +5,11 @@
 #include <string>
 
 class FileItem : public wxPanel {
+    const u_llong uniqueIdent;
+
     wxTextCtrl* genNameField;
     wxTextCtrl* pathField;
+    // TODO: Should have a file browser here later for the pathField.
 
 public:
     static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 2 };
@@ -15,8 +18,5 @@ public:
 
     static constexpr int itemMargin { 10 };
 
-    std::string genericName;
-    std::string filePath;
-
-    FileItem(wxWindow* parent, std::string genericName, std::string filePath);
+    FileItem(wxWindow* parent, u_llong uniqueIdent);
 };

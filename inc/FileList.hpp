@@ -13,11 +13,10 @@ class FileList : public wxPanel {
 
 public:
     static constexpr int topMargin { 60 };
-    static constexpr int scrollAmount { 7 };
 
     FileList(wxWindow* parent);
 
-    void addFileItem(const std::string& name, const std::string& path);
+    void addFileItem(u_llong uniqueIdent);
 
     void scroll(wxMouseEvent& me);
 };

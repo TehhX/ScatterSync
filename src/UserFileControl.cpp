@@ -1,10 +1,22 @@
 #include <UserFileControl.hpp>
 
-bool UserFileControl::fileIsInRepo(std::string_view name) {
-    // TODO
-    return false;
-}
+#include <ManifestManip.hpp>
+
+#include <filesystem>
+
+namespace fsys = std::filesystem;
 
 void UserFileControl::moveFile(std::string_view src, std::string_view dest) {
-    // TODO
+    if (!fsys::exists(src))
+        throw UserFileErr("File does not exist.", UserFileErr::FAIL_MOVE);
+
+    fsys::rename(src, dest);
+}
+
+void UserFileControl::moveToRepo(u_llong uniqueIdent) {
+    
+}
+
+void UserFileControl::moveFromRepo(u_llong uniqueIdent) {
+
 }

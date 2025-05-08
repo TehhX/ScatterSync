@@ -6,6 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <map>
+#include <utility>
 
 class ManiManiErr : public std::runtime_error {
 public:
@@ -14,7 +16,11 @@ public:
         FAIL_CLOSE,
 
         FAIL_READ,
-        FAIL_WRITE
+        FAIL_WRITE,
+
+        FAIL_ACCESS,
+
+        FAIL_NAME
     };
 
     const ErrCode errCode;
@@ -23,23 +29,17 @@ public:
     : std::runtime_error { mssg }, errCode { errCode } {}
 };
 
+#define UFI_MAP_TYPE std::map<u_llong, std::pair<std::string, std::string>>
+
 // A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
-    struct Cloud {
-        u_llong devCount;
-        std::vector<u_llong> uniqueIdents;
-        std::vector<std::string> genNames;
-    };
-
-    struct Local {
-        std::vector<u_llong> uniqueIdents;
-        std::vector<std::string> paths;
-    };
-
     static inline constexpr char* fileNameLocal { "scatterSyncLocal.bin" };
     static inline constexpr char* fileNameCloud { "scatterSyncCloud.bin" };
 
-    static inline std::fstream fileStream;
+    // For each unique identifier, there is a generic name (first) and local path (second).
+    static inline UFI_MAP_TYPE userFileInfo {};
+
+    static inline std::fstream fileStream {};
 
     static void openFile(const char* name);
 
@@ -49,11 +49,17 @@ class ManifestManip {
     static void writeCloud();
     static void writeLocal();
 
-public:
-    static Cloud cloudFile;
-    static Local localFile;
+    static void tryAccess(u_llong uniqueIdent);
 
+public:
     ManifestManip() = delete; // Entirely static class
+
+    static inline UFI_MAP_TYPE::iterator getBegin() { return userFileInfo.begin(); }
+    static inline UFI_MAP_TYPE::iterator getEnd()   { return userFileInfo.end();   }
+
+    static std::string& genNameOf(u_llong uniqueIdent);
+    static std::string& localPathOf(u_llong uniqueIdent);
+    static std::string  fileNameOf(u_llong uniqueIdent);
 
     static void readFiles();
     static void writeFiles();
