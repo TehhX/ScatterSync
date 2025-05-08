@@ -9,24 +9,26 @@ class MainFrame : public wxFrame {
     wxButton* initBttn;
     wxButton* pushBttn;
     wxButton* pullBttn;
+    wxButton* settBttn;
 
     FileList* fileList;
 
-    void initEventBttn(wxCommandEvent& WXUNUSED(event));
-    void pushEventBttn(wxCommandEvent& WXUNUSED(event));
-    void pullEventBttn(wxCommandEvent& WXUNUSED(event));
+    void initEventBttn(wxCommandEvent&);
+    void pushEventBttn(wxCommandEvent&);
+    void pullEventBttn(wxCommandEvent&);
+    void settEventBttn(wxCommandEvent&);
 
-    void closeWinEvent(wxCloseEvent&   WXUNUSED(event));
+    void closeWinEvent(wxCloseEvent&);
 
 public:
     struct Settings {
-        long autoSyncSeconds { -1 };
-        bool autoSyncOnOpen { false };
-        short scrollSpeed { 7 };
-        bool exitPromptUnpushed { true };
+        long autoSyncSeconds;
+        bool autoSyncOnOpen;
+        short scrollSpeed;
+        bool exitPromptUnpushed;
     };
 
-    static inline Settings settings {};
+    static inline Settings settings { -1, false, 7, true };
 
     MainFrame();
 };

@@ -24,14 +24,17 @@ MainFrame::MainFrame()
 
     fileList = new FileList { this };
 
-    initBttn = new wxButton { this, wxID_ANY, "Init", { 30, 10 }, { 60, -1 } };
+    initBttn = new wxButton { this, wxID_ANY, "Init", { 30, 20 }, { 60, -1 } };
     initBttn->Bind(wxEVT_BUTTON, &MainFrame::initEventBttn, this);
 
-    pushBttn = new wxButton { this, wxID_ANY, "Push", { 100, 10 }, { 60, -1 } };
+    pushBttn = new wxButton { this, wxID_ANY, "Push", { 100, 20 }, { 60, -1 } };
     pushBttn->Bind(wxEVT_BUTTON, &MainFrame::pushEventBttn, this);
 
-    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 170, 10 }, { 60, -1 } };
+    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 170, 20 }, { 60, -1 } };
     pullBttn->Bind(wxEVT_BUTTON, &MainFrame::pullEventBttn, this);
+
+    settBttn = new wxButton { this, wxID_ANY, "Settings", { 240, 20 }, { 80, -1 } };
+    settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEventBttn, this);
 
     // A temporary command event is required to initialize Git in the same way as the init button on program start.
     wxCommandEvent tempEv;
@@ -40,9 +43,15 @@ MainFrame::MainFrame()
     Show();
 }
 
-// Tries to execute GitControl::PURPOSE, e.g. gCtrl.init(). If an error is thrown, display a simple popup describing the error.
+/*
+    TODO: REGARDING GIT_BUTTON: Removed "##" preceeding PURPOSE because it was throwing an error on GCC that it didn't
+    with MSVC (75% sure it was MSVC at least). May need to add them depending on the compiler used through
+    "#if defined(XYZ)" statements. Will test later.
+*/
+
+// Tries to execute GitControl::PURPOSE, e.g. init. If an error is thrown, display a simple popup describing the error.
 #define GIT_BUTTON(PURPOSE) \
-void MainFrame::##PURPOSE##EventBttn(wxCommandEvent& WXUNUSED(event)) { \
+void MainFrame::PURPOSE##EventBttn(wxCommandEvent& WXUNUSED(event)) { \
     try { \
         gCtrl.PURPOSE(); \
     } catch (const GitCtrlErr& gce) { \
@@ -54,21 +63,27 @@ GIT_BUTTON(init)
 GIT_BUTTON(push)
 GIT_BUTTON(pull)
 
-void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
+#undef GIT_BUTTON
+
+void MainFrame::settEventBttn(wxCommandEvent& WXUNUSED(event)) {
+    // TODO: Open new window with settings inside it.
+}
+
+void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
         try {
             gCtrl.exitGitCtrl();
             ManifestManip::closeFile();
-            Destroy();
+            ce.Skip();
         }
-        catch (const GitCtrlErr& gce) {
+        catch (const GitCtrlErr& gce)   {
             switch(gce.errCode) {
             default:
                 throw gce;
 
             case GitCtrlErr::BAD_INIT:
                 ManifestManip::closeFile();
-                Destroy();
+                ce.Skip();
                 return;
 
             case GitCtrlErr::UNPUSHED_EXIT:
@@ -78,7 +93,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
                 YN_POP(gce.what(),
                     gCtrl.exitGitCtrl(false);
                     ManifestManip::closeFile();
-                    Destroy();
+                    ce.Skip();
                     return;
                 )
             }
@@ -92,7 +107,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& WXUNUSED(event)) {
         case ManiManiErr::FAIL_CLOSE:
         case ManiManiErr::FAIL_WRITE:
             YN_POP(mme.what(),
-                Destroy();
+                ce.Skip();
             )
         }
     }

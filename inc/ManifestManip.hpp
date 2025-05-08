@@ -29,19 +29,21 @@ public:
     : std::runtime_error { mssg }, errCode { errCode } {}
 };
 
-#define UFI_MAP_TYPE std::map<u_llong, std::pair<std::string, std::string>>
-
 // A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
-    static inline constexpr char* fileNameLocal { "scatterSyncLocal.bin" };
-    static inline constexpr char* fileNameCloud { "scatterSyncCloud.bin" };
+    // The type of userFileInfo, which is a map between unique identifiers and both their generic name and local path.
+    using UFI_MAP_TYPE = std::map<u_llong, std::pair<std::string, std::string>>;
+    using UFI_MAP_ITER = UFI_MAP_TYPE::iterator;
+
+    static inline const std::string fileNameLocal { "scatterSyncLocal.bin" };
+    static inline const std::string fileNameCloud { "scatterSyncCloud.bin" };
 
     // For each unique identifier, there is a generic name (first) and local path (second).
     static inline UFI_MAP_TYPE userFileInfo {};
 
     static inline std::fstream fileStream {};
 
-    static void openFile(const char* name);
+    static void openFile(std::string name);
 
     static void readCloud();
     static void readLocal();
@@ -54,8 +56,8 @@ class ManifestManip {
 public:
     ManifestManip() = delete; // Entirely static class
 
-    static inline UFI_MAP_TYPE::iterator getBegin() { return userFileInfo.begin(); }
-    static inline UFI_MAP_TYPE::iterator getEnd()   { return userFileInfo.end();   }
+    static inline UFI_MAP_ITER getBegin() { return userFileInfo.begin(); }
+    static inline UFI_MAP_ITER getEnd()   { return userFileInfo.end();   }
 
     static std::string& genNameOf(u_llong uniqueIdent);
     static std::string& localPathOf(u_llong uniqueIdent);

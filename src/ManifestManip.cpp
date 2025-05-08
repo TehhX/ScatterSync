@@ -2,7 +2,7 @@
 
 #include <iterator>
 
-void ManifestManip::openFile(const char* name) {
+void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
         closeFile();
 

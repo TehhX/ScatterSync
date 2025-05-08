@@ -11,8 +11,8 @@ FileList::FileList(wxWindow* parent)
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    for (auto it { ManifestManip::getBegin() }; it != ManifestManip::getEnd(); it++)
-        addFileItem(it->first);
+    // for (auto it { ManifestManip::getBegin() }; it != ManifestManip::getEnd(); it++)
+    //     addFileItem(it->first);
 
     Show();
 }
