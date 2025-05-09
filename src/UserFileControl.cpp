@@ -2,21 +2,12 @@
 
 #include <ManifestManip.hpp>
 
-#include <filesystem>
+void moveFile(u_llong uniqueIdent, bool inToOut) {
+    fsys::path outsideRepo { ManifestManip::localPathOf(uniqueIdent) };
+    fsys::path insideRepo  { ManifestManip::fileNameOf(uniqueIdent) };
 
-namespace fsys = std::filesystem;
-
-void UserFileControl::moveFile(std::string_view src, std::string_view dest) {
-    if (!fsys::exists(src))
+    if (!fsys::exists(inToOut ? insideRepo : outsideRepo))
         throw UserFileErr("File does not exist.", UserFileErr::FAIL_MOVE);
 
-    fsys::rename(src, dest);
-}
-
-void UserFileControl::moveToRepo(u_llong uniqueIdent) {
-    
-}
-
-void UserFileControl::moveFromRepo(u_llong uniqueIdent) {
-
+    fsys::rename(inToOut ? insideRepo : outsideRepo, inToOut ? outsideRepo : insideRepo);
 }

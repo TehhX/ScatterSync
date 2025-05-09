@@ -4,6 +4,9 @@
 
 #include <string>
 #include <stdexcept>
+#include <filesystem>
+
+namespace fsys = std::filesystem;
 
 class UserFileErr : public std::runtime_error {
 public:
@@ -19,8 +22,5 @@ public:
 };
 
 namespace UserFileControl {
-    void moveFile(std::string_view src, std::string_view dest);
-
-    void moveToRepo(u_llong uniqueIdent);
-    void moveFromRepo(u_llong uniqueIdent);
-}
+    void moveFile(u_llong uniqueIdent, bool inToOut);
+};
