@@ -9,7 +9,7 @@ CMake is required for building this program. If using VSCode, the [CMakeTools](h
 After installing all prerequisites, simply build with CMake and run the resultant executable. If something goes wrong, refer to [Common Build Issues](#common-build-issues).
 
 ## Downloading Scatter Sync Executables
-Refer to the [latest release](https://github.com/TehhX/ScatterSync/releases/latest) for a precompiled Linux or Windows executable with the latest version of Scatter Sync. They should work out of the box, just place them in whichever local directory you prefer. From there, just follow the [End-User Instructions](#end-user-instructions).
+Refer to the [latest release](https://github.com/TehhX/ScatterSync/releases/latest) for a precompiled Linux or Windows executable with the latest version of Scatter Sync. They should work out of the box; just place them in the directory of your ScatterSync personal repository (the one used for file synchronization, not the one with the source code this README is inside of). From there, just follow the [End-User Instructions](#end-user-instructions).
 
 ## End-User Instructions
 TODO
