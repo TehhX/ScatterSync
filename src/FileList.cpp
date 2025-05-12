@@ -19,10 +19,10 @@ FileList::FileList(wxWindow* parent)
 
 void FileList::addFileItem(u_llong uniqueIdent) {
     auto fileItem = new FileItem { this, uniqueIdent };
-    fileItem->SetPosition({ 0, static_cast<int>(FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
+    fileItem->SetPosition({ 0, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
     fileItem->Show();
 
-    SetSize({ SS_GLOBALDEFS::WSX, static_cast<int>(FileItem::itemHeight * (fileItems.size() + 1) + FileItem::itemMargin) });
+    SetSize({ SS_GLOBALDEFS::WSX, SC(int, FileItem::itemHeight * (fileItems.size() + 1) + FileItem::itemMargin) });
 
     fileItems.push_back(fileItem);
     maxScroll += FileItem::itemHeight;

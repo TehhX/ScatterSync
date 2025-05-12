@@ -2,7 +2,8 @@
 
 #include <wx/wx.h>
 
-#define WH_EVER while(true)
+#define IGN_ERRS(EXEC) try { EXEC } catch(...) {}
+#define FOREVER while(true)
 #define SC(T, VALUE) static_cast<T>(VALUE)
 
 using u_char  = unsigned char;

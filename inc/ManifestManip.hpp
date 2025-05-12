@@ -33,12 +33,17 @@ public:
     All integrals are read/written in little endian.
 */
 class ManifestManip {
-    // For ensuring that passed byte counts are between one and four.
     enum class ByteCount : u_char {
-        ONE = 1,
-        TWO,
-        THREE,
-        FOUR
+        CHAR   = 1,
+        U_CHAR = CHAR,
+        BYTE   = CHAR, // Single byte
+
+        INT    = 2,
+        U_INT  = INT,
+
+        LONG   = 4,
+        U_LONG = LONG,
+        IDENT  = LONG  // Map identifier
     };
 
     // The type of userFileInfo, which is a map between unique identifiers and both their generic name and local path.
@@ -50,8 +55,8 @@ class ManifestManip {
     static inline std::fstream fileStream {};
 
     static void openFile(std::string name);
-    static inline void openCloud() { openFile("scatterSyncLocal.bin"); }
-    static inline void openLocal() { openFile("scatterSyncCloud.bin"); }
+    static inline void openCloud() { openFile("scatterSyncCloud.bin"); }
+    static inline void openLocal() { openFile("scatterSyncLocal.bin"); }
 
     static std::string readVariableLen();
     static u_long readIntegral(ByteCount bytes);
@@ -70,9 +75,9 @@ class ManifestManip {
 public:
     ManifestManip() = delete; // Entirely static class
 
-    // Returning an iterator publically exposes a lot, figure out a more encapsulating way of doing this later
+    // TODO: Returning an iterator publically exposes a lot, figure out a more encapsulating way of doing this later
     static inline ufiMapType::iterator getBegin() { return userFileInfo.begin(); }
-    static inline ufiMapType::iterator getEnd()   { return userFileInfo.end(); }
+    static inline ufiMapType::iterator getEnd()   { return userFileInfo.end();   }
 
     static std::string& genNameOf(u_long uniqueIdent);
     static std::string& localPathOf(u_long uniqueIdent);

@@ -4,6 +4,9 @@
 
 #include <MainFrame.hpp>
 
+constexpr u_char autoSyncOnOpenMask { 1 };
+constexpr u_char promptUnpushedMask { 2 };
+
 void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
         closeFile();
@@ -19,14 +22,14 @@ std::string ManifestManip::readVariableLen() {
     std::string value {};
     char input {};
 
-    WH_EVER {
+    FOREVER {
         fileStream >> input;
 
         // Variable length strings inside binary files must end in '\0' null terminator.
         if (input == '\0')
             return value;
-
-        value.append(std::string { input });
+        else
+            value.append({ input });
     }
 }
 
@@ -34,8 +37,8 @@ std::string ManifestManip::readVariableLen() {
 u_long ManifestManip::readIntegral(ByteCount bytes) {
     constexpr static u_char byteW { 8 }; // Bits/Byte width
 
-    u_llong value { 0 };
-    u_char input  { 0 };
+    u_long value { 0 };
+    u_char input { 0 };
 
     fileStream >> input;
     value += SC(u_long, input);
@@ -63,29 +66,40 @@ void ManifestManip::readCloud() {
     openCloud();
 
     // Read auto-sync interval
+    MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::LONG);
 
     // Read scroll-speed
-    
-    // Read auto-sync on open
+    MainFrame::settings.scrollSpeed = readIntegral(ByteCount::INT);
 
-    // Read prompt on unpuhsed exit
+    /* Read both autoSyncOnOpen and exitPromptUnpushed */ {
+        // Probably just as wrong as writeCloud().
+        char in;
+        fileStream >> in;
 
-    // Until file is exhausted:
+        MainFrame::settings.autoSyncOnOpen = in & autoSyncOnOpenMask;
+        MainFrame::settings.exitPromptUnpushed = in & promptUnpushedMask;
+    }
 
-        // Read generic name for file n
+    while (fileStream.peek() != EOF) {
+        auto genName { readVariableLen() };
+        auto ident   { readIntegral(ByteCount::IDENT) };
 
-        // Read ident for file n
+        // TODO: Untested, should throw an error at the end of the file, but that's for later me :)
+        userFileInfo.insert({ ident, { genName, "NULL" } });
+    }
 }
 
 // TODO: Untested
 void ManifestManip::readLocal() {
     openLocal();
 
-    // Until file is exhausted:
+    while (fileStream.peek() != EOF) {
+        auto ident { readIntegral(ByteCount::IDENT) };
+        auto path  { readVariableLen() };
 
-        // Read ident for file n
-
-        // Read local path for file n
+        // Find map key of next ident, assign its local path to next string.
+        userFileInfo.find(ident)->second.second = path;
+    }
 }
 
 // TODO: Untested
@@ -114,13 +128,10 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 void ManifestManip::writeCloud() {
     openCloud();
 
-    writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::FOUR);
-    writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::TWO);
+    writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::LONG);
+    writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::INT);
 
     /* Write both auto sync on open and prompt on unpushed exit booleans */ {
-        static constexpr u_char autoSyncOnOpenMask { 0b00'00'00'01 };
-        static constexpr u_char promptUnpushedMask { 0b00'00'00'10 };
-
         // This is probably comically wrong, test it later
         auto out { SC(u_char,
             (MainFrame::settings.autoSyncOnOpen     ? autoSyncOnOpenMask : 0) |
@@ -132,7 +143,7 @@ void ManifestManip::writeCloud() {
 
     for (auto i { getBegin() }; i != getEnd(); i++) {
         writeVariableLen(genNameOf(i->first));
-        writeIntegral(i->first, ByteCount::FOUR);
+        writeIntegral(i->first, ByteCount::U_LONG);
     }
 }
 
@@ -141,7 +152,7 @@ void ManifestManip::writeLocal() {
     openLocal();
 
     for (auto i { getBegin() }; i != getEnd(); i++) {
-        writeIntegral(i->first, ByteCount::FOUR);
+        writeIntegral(i->first, ByteCount::IDENT);
         writeVariableLen(localPathOf(i->first));
     }
 }
@@ -185,14 +196,15 @@ void ManifestManip::readFiles() {
 }
 
 void ManifestManip::writeFiles() {
-    writeCloud();
-    writeLocal();
+    // TODO: Not currently writing files for testing purposes. Uncomment when done.
+        // writeCloud();
+        // writeLocal();
 }
 
 void ManifestManip::closeFile() {
     if (fileStream.is_open())
         fileStream.close();
 
-    if (fileStream.fail())
+    if (fileStream.is_open())
         throw ManiManiErr("Could not close file.", ManiManiErr::FAIL_CLOSE);
 }
