@@ -3,18 +3,6 @@
 #include <ScatterSyncDefs.hpp>
 #include <ManifestManip.hpp>
 
-// Displays a simple popup window with MSSG as the message and no further user input.
-#define POPUP(MSSG) \
-    auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK } }; \
-    mssgDialog->ShowModal();
-
-// Displays a yes/no popup window with MSSG as the message, executes EXEC if yes, nothing if no.
-#define YN_POP(MSSG, EXEC) \
-    auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxYES | wxNO } }; \
-    if (mssgDialog->ShowModal() == wxID_YES) { \
-        EXEC \
-    }
-
 MainFrame::MainFrame()
 : wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
     SetClientSize(SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY);
@@ -22,7 +10,8 @@ MainFrame::MainFrame()
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 
-    fileList = new FileList { this };
+    fileList      = new FileList      { this };
+    settingsFrame = new SettingsFrame { this };
 
     initBttn = new wxButton { this, wxID_ANY, "Init", { 30, 20 }, { 60, -1 } };
     initBttn->Bind(wxEVT_BUTTON, &MainFrame::initEventBttn, this);
@@ -35,22 +24,12 @@ MainFrame::MainFrame()
 
     settBttn = new wxButton { this, wxID_ANY, "Settings", { 240, 20 }, { 80, -1 } };
     settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEventBttn, this);
-
-    settingsFrame = new SettingsFrame(this);
-    settingsFrame->Hide();
-
-    // A temporary command event is required to initialize Git in the same way as the init button on program start.
-    wxCommandEvent tempEv;
-    initEventBttn(tempEv);
+    
+    wxCommandEvent emptyTemporaryEvent;
+    initEventBttn(emptyTemporaryEvent);
 
     Show();
 }
-
-/*
-    TODO: REGARDING GIT_BUTTON: Removed "##" preceeding PURPOSE because it was throwing an error on GCC that it didn't
-    with MSVC (75% sure it was MSVC at least). May need to add them depending on the compiler used through
-    "#if defined(XYZ)" statements. Will test later.
-*/
 
 // Tries to execute GitControl::PURPOSE, e.g. init. If an error is thrown, display a simple popup describing the error.
 #define GIT_BUTTON(PURPOSE) \
@@ -74,46 +53,43 @@ void MainFrame::settEventBttn(wxCommandEvent& WXUNUSED(event)) {
 void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
         try {
-            gCtrl.exitGitCtrl();
-            ManifestManip::closeFile();
-            ce.Skip();
+            standardExit(ce);
         }
         catch (const GitCtrlErr& gce)   {
             switch(gce.errCode) {
             default:
+                std::cerr << "Unknown GCE error code.\n";
                 throw gce;
 
             case GitCtrlErr::BAD_INIT:
-                ManifestManip::closeFile();
-                ce.Skip();
+                standardExit(ce, false);
                 return;
 
             case GitCtrlErr::UNPUSHED_EXIT:
-                if (!MainFrame::settings.exitPromptUnpushed) {
-                    gCtrl.exitGitCtrl(false);
-                    ce.Skip();
-                    return;
-                }
-
-                YN_POP(gce.what(),
-                    gCtrl.exitGitCtrl(false);
-                    ManifestManip::closeFile();
-                    ce.Skip();
-                    return;
-                )
+                if (MainFrame::settings.exitPromptUnpushed)
+                    YN_POP(gce.what(), standardExit(ce, false);)
+                else
+                    standardExit(ce, false);
             }
         }
     }
     catch (const ManiManiErr& mme) {
         switch (mme.errCode) {
         default:
+            std::cerr << "Unknown MME error code.\n";
             throw mme;
 
         case ManiManiErr::FAIL_CLOSE:
         case ManiManiErr::FAIL_WRITE:
-            YN_POP(mme.what(),
-                ce.Skip();
-            )
+            YN_POP(mme.what(), ce.Skip();)
         }
     }
+}
+
+void MainFrame::standardExit(wxCloseEvent& ce, bool warnUnpushed) {
+    gCtrl.exitGitCtrl(warnUnpushed); \
+    fileList->submitAllUpdates(); \
+    ManifestManip::writeFiles(); \
+    ManifestManip::closeFile(); \
+    ce.Skip();
 }

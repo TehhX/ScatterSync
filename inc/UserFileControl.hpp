@@ -20,4 +20,5 @@ public:
 
 namespace UserFileControl {
     void moveFile(u_llong uniqueIdent, bool inToOut);
+    bool exists(std::string_view fileName);
 };

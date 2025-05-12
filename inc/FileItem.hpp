@@ -19,4 +19,6 @@ public:
     static constexpr int itemMargin { 10 };
 
     FileItem(wxWindow* parent, u_llong uniqueIdent);
+
+    void submitUpdate();
 };

@@ -19,4 +19,6 @@ public:
     void addFileItem(u_llong uniqueIdent);
 
     void scroll(wxMouseEvent& me);
+
+    void submitAllUpdates();
 };

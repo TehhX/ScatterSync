@@ -11,3 +11,8 @@ FileItem::FileItem(wxWindow* parent, u_llong uniqueIdent)
     genNameField = new wxTextCtrl { this, wxID_ANY, ManifestManip::genNameOf(uniqueIdent), { 0, 0 }, itemSize };
     pathField = new wxTextCtrl { this, wxID_ANY, ManifestManip::localPathOf(uniqueIdent), { itemWidth, 0 }, itemSize };
 }
+
+void FileItem::submitUpdate() {
+    ManifestManip::genNameOf(uniqueIdent)   = genNameField->GetValue();
+    ManifestManip::localPathOf(uniqueIdent) = pathField->GetValue();
+}

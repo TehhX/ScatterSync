@@ -11,8 +11,8 @@ FileList::FileList(wxWindow* parent)
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    // for (auto it { ManifestManip::getBegin() }; it != ManifestManip::getEnd(); it++)
-    //     addFileItem(it->first);
+    for (auto it { ManifestManip::getBegin() }; it != ManifestManip::getEnd(); it++)
+        addFileItem(it->first);
 
     Show();
 }
@@ -40,6 +40,9 @@ void FileList::scroll(wxMouseEvent& me) {
         if (GetPosition().y < -maxScroll)
             SetPosition({ 0, -maxScroll });
     }
+}
 
-    std::cout << "Max: " << maxScroll << ", Current: " << GetPosition().y << '\n';
+void FileList::submitAllUpdates() {
+    for (auto item : fileItems)
+        item->submitUpdate();
 }

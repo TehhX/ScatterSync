@@ -61,7 +61,7 @@ void GitControl::resetChanges() {
     
     if (system("git restore --staged .") || system("git restore ."))
         throw GitCtrlErr("Couldn't reset changes.", GitCtrlErr::FAIL_MANIP);
-};
+}
 
 void GitControl::exitGitCtrl(bool warnUnpushed) {
     if (!isActive)

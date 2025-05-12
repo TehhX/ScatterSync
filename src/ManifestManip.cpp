@@ -3,15 +3,20 @@
 #include <cstdint>
 
 #include <MainFrame.hpp>
+#include <UserFileControl.hpp>
 
 constexpr u_char autoSyncOnOpenMask { 1 };
 constexpr u_char promptUnpushedMask { 2 };
 
-void ManifestManip::openFile(std::string name) {
+void ManifestManip::openFile(std::string name, bool read) {
     if (fileStream.is_open())
         closeFile();
 
+    if (!UserFileControl::exists(name))
+        throw ManiManiErr("One of the manifest files does not exist.", ManiManiErr::FAIL_READ);
+
     fileStream.open(name);
+    fileStream >> std::noskipws;
 
     if (fileStream.fail())
         throw ManiManiErr("Couldn't open file.", ManiManiErr::FAIL_OPEN);
@@ -22,7 +27,7 @@ std::string ManifestManip::readVariableLen() {
     std::string value {};
     char input {};
 
-    FOREVER {
+    while (fileStream.peek() != EOF) {
         fileStream >> input;
 
         // Variable length strings inside binary files must end in '\0' null terminator.
@@ -31,6 +36,8 @@ std::string ManifestManip::readVariableLen() {
         else
             value.append({ input });
     }
+
+    throw ManiManiErr("Reached end of file without closing string.", ManiManiErr::FAIL_READ);
 }
 
 // TODO: Untested
@@ -63,7 +70,7 @@ u_long ManifestManip::readIntegral(ByteCount bytes) {
 
 // TODO: Untested
 void ManifestManip::readCloud() {
-    openCloud();
+    openCloud(true);
 
     // Read auto-sync interval
     MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::LONG);
@@ -91,7 +98,7 @@ void ManifestManip::readCloud() {
 
 // TODO: Untested
 void ManifestManip::readLocal() {
-    openLocal();
+    openLocal(true);
 
     while (fileStream.peek() != EOF) {
         auto ident { readIntegral(ByteCount::IDENT) };
@@ -126,7 +133,7 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 
 // TODO: Untested
 void ManifestManip::writeCloud() {
-    openCloud();
+    openCloud(false);
 
     writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::LONG);
     writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::INT);
@@ -149,7 +156,7 @@ void ManifestManip::writeCloud() {
 
 // TODO: Untested
 void ManifestManip::writeLocal() {
-    openLocal();
+    openLocal(false);
 
     for (auto i { getBegin() }; i != getEnd(); i++) {
         writeIntegral(i->first, ByteCount::IDENT);
@@ -196,15 +203,14 @@ void ManifestManip::readFiles() {
 }
 
 void ManifestManip::writeFiles() {
-    // TODO: Not currently writing files for testing purposes. Uncomment when done.
-        // writeCloud();
-        // writeLocal();
+    writeCloud();
+    writeLocal();
 }
 
 void ManifestManip::closeFile() {
     if (fileStream.is_open())
         fileStream.close();
 
-    if (fileStream.is_open())
+    if (fileStream.fail())
         throw ManiManiErr("Could not close file.", ManiManiErr::FAIL_CLOSE);
 }

@@ -23,6 +23,8 @@ class MainFrame : public wxFrame {
 
     void closeWinEvent(wxCloseEvent&);
 
+    void standardExit(wxCloseEvent&, bool warnUnpushed = true);
+
 public:
     struct Settings {
         long autoSyncSeconds;
