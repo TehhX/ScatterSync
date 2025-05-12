@@ -2,6 +2,7 @@
 
 #include <FileList.hpp>
 #include <GitControl.hpp>
+#include <SettingsFrame.hpp>
 
 class MainFrame : public wxFrame {
     GitControl gCtrl;
@@ -10,6 +11,8 @@ class MainFrame : public wxFrame {
     wxButton* pushBttn;
     wxButton* pullBttn;
     wxButton* settBttn;
+
+    SettingsFrame* settingsFrame;
 
     FileList* fileList;
 
@@ -24,11 +27,11 @@ public:
     struct Settings {
         long autoSyncSeconds;
         bool autoSyncOnOpen;
-        short scrollSpeed;
+        int scrollSpeed;
         bool exitPromptUnpushed;
     };
 
-    static inline Settings settings { -1, false, 7, true };
+    static inline Settings settings { 0, false, 7, true };
 
     MainFrame();
 };

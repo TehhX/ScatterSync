@@ -4,15 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Extra steps may be required on different operating systems.
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    message("Building ScatterSync for Windows. Setting subsystem to Windows.")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
-
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    message("Building ScatterSync for Linux. No extra steps required.")
-
-else()
-    message("Building ScatterSync for unsupported OS: " ${CMAKE_SYSTEM_NAME} ". Good luck.")
-
 endif()
 
 # wxWidgets is required for this software.
@@ -21,16 +13,21 @@ include(${wxWidgets_USE_FILE})
 
 # Source .cpp files.
 set(SRC
-    src/FileItem.cpp
-    src/FileList.cpp
-    src/GitControl.cpp
-    src/MainFrame.cpp
-    src/ManifestManip.cpp
-    src/ScatterSyncApp.cpp
-    src/UserFileControl.cpp
+    FileItem
+    FileList
+    GitControl
+    MainFrame
+    ManifestManip
+    ScatterSyncApp
+    SettingsFrame
+    UserFileControl
 )
 
-add_executable(${PROJECT_NAME} ${SRC})
+# For file "x" in SRC, transform to "src/x.cpp".
+list(TRANSFORM SRC PREPEND "src/")
+list(TRANSFORM SRC APPEND  ".cpp")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${wxWidgets_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PRIVATE "inc/")
+add_executable(ScatterSync ${SRC})
+
+target_link_libraries(ScatterSync PRIVATE ${wxWidgets_LIBRARIES})
+target_include_directories(ScatterSync PRIVATE "inc/")

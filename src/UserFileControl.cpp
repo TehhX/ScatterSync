@@ -2,6 +2,10 @@
 
 #include <ManifestManip.hpp>
 
+#include <filesystem>
+
+namespace fsys = std::filesystem;
+
 void moveFile(u_llong uniqueIdent, bool inToOut) {
     fsys::path outsideRepo { ManifestManip::localPathOf(uniqueIdent) };
     fsys::path insideRepo  { ManifestManip::fileNameOf(uniqueIdent) };

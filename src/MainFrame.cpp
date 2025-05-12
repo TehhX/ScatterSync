@@ -36,6 +36,9 @@ MainFrame::MainFrame()
     settBttn = new wxButton { this, wxID_ANY, "Settings", { 240, 20 }, { 80, -1 } };
     settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEventBttn, this);
 
+    settingsFrame = new SettingsFrame(this);
+    settingsFrame->Hide();
+
     // A temporary command event is required to initialize Git in the same way as the init button on program start.
     wxCommandEvent tempEv;
     initEventBttn(tempEv);
@@ -63,10 +66,9 @@ GIT_BUTTON(init)
 GIT_BUTTON(push)
 GIT_BUTTON(pull)
 
-#undef GIT_BUTTON
-
 void MainFrame::settEventBttn(wxCommandEvent& WXUNUSED(event)) {
-    // TODO: Open new window with settings inside it.
+    settingsFrame->Show();
+    settingsFrame->Raise();
 }
 
 void MainFrame::closeWinEvent(wxCloseEvent& ce) {
@@ -87,8 +89,11 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
                 return;
 
             case GitCtrlErr::UNPUSHED_EXIT:
-                if (!MainFrame::settings.exitPromptUnpushed)
+                if (!MainFrame::settings.exitPromptUnpushed) {
+                    gCtrl.exitGitCtrl(false);
+                    ce.Skip();
                     return;
+                }
 
                 YN_POP(gce.what(),
                     gCtrl.exitGitCtrl(false);

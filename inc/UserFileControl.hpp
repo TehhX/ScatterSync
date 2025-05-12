@@ -4,9 +4,6 @@
 
 #include <string>
 #include <stdexcept>
-#include <filesystem>
-
-namespace fsys = std::filesystem;
 
 class UserFileErr : public std::runtime_error {
 public:

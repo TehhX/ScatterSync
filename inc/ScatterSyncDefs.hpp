@@ -2,6 +2,9 @@
 
 #include <wx/wx.h>
 
+#define WH_EVER while(true)
+#define SC(T, VALUE) static_cast<T>(VALUE)
+
 using u_char  = unsigned char;
 using u_long  = unsigned long;
 using u_llong = unsigned long long;
