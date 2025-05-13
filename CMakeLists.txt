@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(ScatterSync LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-# Extra steps may be required on different operating systems.
+# On Windows, setting the subsystem to Windows using the linker flags is required.
 if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
@@ -23,7 +23,7 @@ set(SRC
     UserFileControl
 )
 
-# For file "x" in SRC, transform to "src/x.cpp".
+# For each file "x" in SRC, transform to "src/x.cpp".
 list(TRANSFORM SRC PREPEND "src/")
 list(TRANSFORM SRC APPEND  ".cpp")
 

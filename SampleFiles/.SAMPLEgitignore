@@ -1,0 +1,7 @@
+# Local data binary file
+scatterSyncLocal.bin
+
+# Scatter Sync Application
+ScatterSync.exe
+ScatterSync.out
+wx*.dll
