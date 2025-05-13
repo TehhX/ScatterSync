@@ -54,9 +54,9 @@ class ManifestManip {
 
     static inline std::fstream fileStream {};
 
-    static void openFile(std::string name, bool read);
-    static inline void openCloud(bool read) { openFile("scatterSyncCloud.bin", read); }
-    static inline void openLocal(bool read) { openFile("scatterSyncLocal.bin", read); }
+    static void openFile(std::string name);
+    static inline void openCloud() { openFile("scatterSyncCloud.bin"); }
+    static inline void openLocal() { openFile("scatterSyncLocal.bin"); }
 
     static std::string readVariableLen();
     static u_long readIntegral(ByteCount bytes);

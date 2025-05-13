@@ -8,7 +8,7 @@
 constexpr u_char autoSyncOnOpenMask { 1 };
 constexpr u_char promptUnpushedMask { 2 };
 
-void ManifestManip::openFile(std::string name, bool read) {
+void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
         closeFile();
 
@@ -22,7 +22,6 @@ void ManifestManip::openFile(std::string name, bool read) {
         throw ManiManiErr("Couldn't open file.", ManiManiErr::FAIL_OPEN);
 }
 
-// TODO: Untested
 std::string ManifestManip::readVariableLen() {
     std::string value {};
     char input {};
@@ -30,8 +29,7 @@ std::string ManifestManip::readVariableLen() {
     while (fileStream.peek() != EOF) {
         fileStream >> input;
 
-        // Variable length strings inside binary files must end in '\0' null terminator.
-        if (input == '\0')
+        if (input == '\0') // Strings inside binary file end in '\0'.
             return value;
         else
             value.append({ input });
@@ -40,7 +38,6 @@ std::string ManifestManip::readVariableLen() {
     throw ManiManiErr("Reached end of file without closing string.", ManiManiErr::FAIL_READ);
 }
 
-// TODO: Untested
 u_long ManifestManip::readIntegral(ByteCount bytes) {
     constexpr static u_char byteW { 8 }; // Bits/Byte width
 
@@ -68,18 +65,13 @@ u_long ManifestManip::readIntegral(ByteCount bytes) {
     return value;
 }
 
-// TODO: Untested
 void ManifestManip::readCloud() {
-    openCloud(true);
+    openCloud();
 
-    // Read auto-sync interval
     MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::LONG);
-
-    // Read scroll-speed
     MainFrame::settings.scrollSpeed = readIntegral(ByteCount::INT);
 
-    /* Read both autoSyncOnOpen and exitPromptUnpushed */ {
-        // Probably just as wrong as writeCloud().
+    { // Read both autoSyncOnOpen and exitPromptUnpushed
         char in;
         fileStream >> in;
 
@@ -88,28 +80,24 @@ void ManifestManip::readCloud() {
     }
 
     while (fileStream.peek() != EOF) {
-        auto genName { readVariableLen() };
-        auto ident   { readIntegral(ByteCount::IDENT) };
+        std::string genName { readVariableLen() };
+        u_long ident        { readIntegral(ByteCount::IDENT) };
 
-        // TODO: Untested, should throw an error at the end of the file, but that's for later me :)
         userFileInfo.insert({ ident, { genName, "NULL" } });
     }
 }
 
-// TODO: Untested
 void ManifestManip::readLocal() {
-    openLocal(true);
+    openLocal();
 
     while (fileStream.peek() != EOF) {
-        auto ident { readIntegral(ByteCount::IDENT) };
-        auto path  { readVariableLen() };
+        u_long ident      { readIntegral(ByteCount::IDENT) };
+        std::string path  { readVariableLen() };
 
-        // Find map key of next ident, assign its local path to next string.
         userFileInfo.find(ident)->second.second = path;
     }
 }
 
-// TODO: Untested
 void ManifestManip::writeVariableLen(std::string_view value) {
     for (size_t i { 0 }; i < value.length(); i++)
         fileStream << value[i];
@@ -117,7 +105,6 @@ void ManifestManip::writeVariableLen(std::string_view value) {
     fileStream << '\0';
 }
 
-// TODO: Untested
 void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
     fileStream << SC(u_char, value & 0x00'00'00'FF);
 
@@ -131,15 +118,13 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
         fileStream << SC(u_char, (value & 0xFF'00'00'00) >> 24);
 }
 
-// TODO: Untested
 void ManifestManip::writeCloud() {
-    openCloud(false);
+    openCloud();
 
     writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::LONG);
     writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::INT);
 
-    /* Write both auto sync on open and prompt on unpushed exit booleans */ {
-        // This is probably comically wrong, test it later
+    { // Write both auto sync on open and prompt on unpushed exit booleans
         auto out { SC(u_char,
             (MainFrame::settings.autoSyncOnOpen     ? autoSyncOnOpenMask : 0) |
             (MainFrame::settings.exitPromptUnpushed ? promptUnpushedMask : 0)
@@ -154,9 +139,8 @@ void ManifestManip::writeCloud() {
     }
 }
 
-// TODO: Untested
 void ManifestManip::writeLocal() {
-    openLocal(false);
+    openLocal();
 
     for (auto i { getBegin() }; i != getEnd(); i++) {
         writeIntegral(i->first, ByteCount::IDENT);
@@ -164,7 +148,6 @@ void ManifestManip::writeLocal() {
     }
 }
 
-// TODO: Untested
 void ManifestManip::tryAccess(u_long uniqueIdent) {
     if (userFileInfo.find(uniqueIdent) == userFileInfo.end())
         throw ManiManiErr("Identifier does not exist.", ManiManiErr::FAIL_ACCESS);
@@ -193,8 +176,7 @@ std::string ManifestManip::fileNameOf(u_long uniqueIdent) {
         if (name[i] == '/')
             return name.substr(i + 1);
 
-    // Only gets to this point if '/' is not found.
-    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_IDENT);
+    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_IDENT); // Only gets to this point if '/' is not found in path.
 }
 
 void ManifestManip::readFiles() {
