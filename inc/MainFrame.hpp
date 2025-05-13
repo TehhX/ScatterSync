@@ -11,10 +11,13 @@ class MainFrame : public wxFrame {
     wxButton* pushBttn;
     wxButton* pullBttn;
     wxButton* settBttn;
+    wxButton* trackNewBttn;
 
     SettingsFrame* settingsFrame;
 
     FileList* fileList;
+
+    inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10, 15 }; }
 
     void initEventBttn(wxCommandEvent&);
     void pushEventBttn(wxCommandEvent&);
@@ -31,9 +34,10 @@ public:
         bool autoSyncOnOpen;
         int scrollSpeed;
         bool exitPromptUnpushed;
+        bool initGitOnOpen;
     };
 
-    static inline Settings settings { 0, false, 7, true };
+    static inline Settings settings { 0, false, 7, true, true };
 
     MainFrame();
 };

@@ -5,13 +5,13 @@
 #include <string>
 
 class FileItem : public wxPanel {
-    const u_llong uniqueIdent;
-
     wxTextCtrl* genNameField;
     wxTextCtrl* pathField;
     // TODO: Should have a file browser here later for the pathField.
 
 public:
+    const u_llong uniqueIdent;
+
     static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 2 };
     static constexpr int itemHeight { 50 };
     const wxSize itemSize { itemWidth, itemHeight };

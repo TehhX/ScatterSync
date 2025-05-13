@@ -5,8 +5,9 @@
 #include <MainFrame.hpp>
 #include <UserFileControl.hpp>
 
-constexpr u_char autoSyncOnOpenMask { 1 };
-constexpr u_char promptUnpushedMask { 2 };
+constexpr u_char autoSyncOnOpenMask { 0b00'00'00'01 };
+constexpr u_char promptUnpushedMask { 0b00'00'00'10 };
+constexpr u_char initGitOnOpenMask  { 0b00'00'01'00 };
 
 void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
@@ -68,15 +69,16 @@ u_long ManifestManip::readIntegral(ByteCount bytes) {
 void ManifestManip::readCloud() {
     openCloud();
 
-    MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::LONG);
-    MainFrame::settings.scrollSpeed = readIntegral(ByteCount::INT);
+    MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::AUTO_SYNC);
+    MainFrame::settings.scrollSpeed     = readIntegral(ByteCount::SCROLL_SPEED);
 
-    { // Read both autoSyncOnOpen and exitPromptUnpushed
+    { // These bools use the same byte, different bits
         char in;
         fileStream >> in;
 
-        MainFrame::settings.autoSyncOnOpen = in & autoSyncOnOpenMask;
+        MainFrame::settings.autoSyncOnOpen     = in & autoSyncOnOpenMask;
         MainFrame::settings.exitPromptUnpushed = in & promptUnpushedMask;
+        MainFrame::settings.initGitOnOpen      = in & initGitOnOpenMask;
     }
 
     while (fileStream.peek() != EOF) {
@@ -122,13 +124,14 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 void ManifestManip::writeCloud() {
     openCloud();
 
-    writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::LONG);
-    writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::INT);
+    writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::AUTO_SYNC);
+    writeIntegral(MainFrame::settings.scrollSpeed,     ByteCount::SCROLL_SPEED);
 
-    { // Write both auto sync on open and prompt on unpushed exit booleans
+    { // These bools use the same byte, different bits
         auto out { SC(u_char,
             (MainFrame::settings.autoSyncOnOpen     ? autoSyncOnOpenMask : 0) |
-            (MainFrame::settings.exitPromptUnpushed ? promptUnpushedMask : 0)
+            (MainFrame::settings.exitPromptUnpushed ? promptUnpushedMask : 0) |
+            (MainFrame::settings.initGitOnOpen      ? initGitOnOpenMask  : 0)
         )};
 
         fileStream << out;
@@ -136,7 +139,7 @@ void ManifestManip::writeCloud() {
 
     for (auto i { userFileInfo.begin() }; i != userFileInfo.end(); i++) {
         writeVariableLen(genNameOf(i->first));
-        writeIntegral(i->first, ByteCount::U_LONG);
+        writeIntegral(i->first, ByteCount::IDENT);
     }
 }
 
@@ -149,8 +152,8 @@ void ManifestManip::writeLocal() {
     }
 }
 
-ManifestManip::ufiPairType& ManifestManip::tryAccess(u_long uniqueIdent) {
-    const ufiMapType::iterator mapIterator { userFileInfo.find(uniqueIdent) };
+ManifestManip::UFIPair& ManifestManip::getPair(u_long uniqueIdent) {
+    const UFIMap::iterator mapIterator { userFileInfo.find(uniqueIdent) };
 
     if (mapIterator == userFileInfo.end())
         throw ManiManiErr("Identifier does not exist.", ManiManiErr::FAIL_ACCESS);
@@ -158,15 +161,24 @@ ManifestManip::ufiPairType& ManifestManip::tryAccess(u_long uniqueIdent) {
         return mapIterator->second;
 }
 
+void ManifestManip::forEach(const ManifestManip::ForEachFunc& forEachFunc) {
+    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++)
+        forEachFunc(iter);
+}
+
+ManifestManip::UFIMap::iterator ManifestManip::createNewFileMap() {
+    userFileInfo.insert({ (--userFileInfo.end())->first + 1, { "Generic Name Here", "Local Path Here" } });
+    return --userFileInfo.end();
+}
+
 std::string& ManifestManip::genNameOf(u_long uniqueIdent) {
-    return tryAccess(uniqueIdent).first;
+    return getPair(uniqueIdent).first;
 }
 
 std::string& ManifestManip::localPathOf(u_long uniqueIdent) {
-    return tryAccess(uniqueIdent).second;
+    return getPair(uniqueIdent).second;
 }
 
-// TODO: Untested
 std::string ManifestManip::fileNameOf(u_long uniqueIdent) {
     std::string name { localPathOf(uniqueIdent) };
 
@@ -175,7 +187,8 @@ std::string ManifestManip::fileNameOf(u_long uniqueIdent) {
         if (name[i] == '/')
             return name.substr(i + 1);
 
-    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_IDENT); // Only gets to this point if '/' is not found in path.
+    // Only gets to this point if '/' is not found in path.
+    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_ACCESS);
 }
 
 void ManifestManip::readFiles() {

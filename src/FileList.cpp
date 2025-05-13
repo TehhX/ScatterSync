@@ -5,20 +5,28 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
+#include <functional>
+
+void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
+    addFileItem(ManifestManip::createNewFileMap()->first);
+}
+
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY - topMargin } } {
     Hide();
-    SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
+    SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    for (auto it { ManifestManip::getBegin() }; it != ManifestManip::getEnd(); it++)
-        addFileItem(it->first);
+    ManifestManip::forEach({ [this](const ManifestManip::UFIMap::iterator& map) -> void {
+        addFileItem(map->first);
+    }});
 
     Show();
 }
 
 void FileList::addFileItem(u_llong uniqueIdent) {
     auto fileItem = new FileItem { this, uniqueIdent };
+    fileItem->SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     fileItem->SetPosition({ 0, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
     fileItem->Show();
 

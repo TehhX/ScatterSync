@@ -13,6 +13,7 @@ class SettingsFrame : public wxFrame {
 
     wxCheckBox* autoSync;
     wxCheckBox* promptUnpushed;
+    wxCheckBox* initGitOnOpen;
 
     void onCloseEvent(wxCloseEvent&);
 

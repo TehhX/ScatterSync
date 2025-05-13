@@ -13,20 +13,28 @@ MainFrame::MainFrame()
     fileList      = new FileList      { this };
     settingsFrame = new SettingsFrame { this };
 
-    initBttn = new wxButton { this, wxID_ANY, "Init", { 30, 20 }, { 60, -1 } };
+    initBttn = new wxButton { this, wxID_ANY, "Init", getButtonOffset() };
     initBttn->Bind(wxEVT_BUTTON, &MainFrame::initEventBttn, this);
 
-    pushBttn = new wxButton { this, wxID_ANY, "Push", { 100, 20 }, { 60, -1 } };
+    pushBttn = new wxButton { this, wxID_ANY, "Push", getButtonOffset(initBttn) };
     pushBttn->Bind(wxEVT_BUTTON, &MainFrame::pushEventBttn, this);
 
-    pullBttn = new wxButton { this, wxID_ANY, "Pull", { 170, 20 }, { 60, -1 } };
+    pullBttn = new wxButton { this, wxID_ANY, "Pull", getButtonOffset(pushBttn) };
     pullBttn->Bind(wxEVT_BUTTON, &MainFrame::pullEventBttn, this);
 
-    settBttn = new wxButton { this, wxID_ANY, "Settings", { 240, 20 }, { 80, -1 } };
+    settBttn = new wxButton { this, wxID_ANY, "Settings", getButtonOffset(pullBttn) };
     settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEventBttn, this);
+
+    trackNewBttn = new wxButton { this, wxID_ANY, "Track New File", getButtonOffset(settBttn) };
+    trackNewBttn->Bind(wxEVT_BUTTON, &FileList::createNewFile, fileList);
     
-    wxCommandEvent emptyTemporaryEvent;
-    initEventBttn(emptyTemporaryEvent);
+    if (settings.initGitOnOpen) {
+        wxCommandEvent emptyTemporaryEvent;
+        initEventBttn(emptyTemporaryEvent);
+
+        if (settings.autoSyncOnOpen)
+            pullEventBttn(emptyTemporaryEvent);
+    }
 
     Show();
 }
@@ -63,7 +71,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
 
             case GitCtrlErr::BAD_INIT:
                 standardExit(ce, false);
-                return;
+                break;
 
             case GitCtrlErr::UNPUSHED_EXIT:
                 if (MainFrame::settings.exitPromptUnpushed)
@@ -87,9 +95,9 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
 }
 
 void MainFrame::standardExit(wxCloseEvent& ce, bool warnUnpushed) {
-    gCtrl.exitGitCtrl(warnUnpushed); \
-    fileList->submitAllUpdates(); \
-    ManifestManip::writeFiles(); \
-    ManifestManip::closeFile(); \
+    gCtrl.exitGitCtrl(warnUnpushed);
+    fileList->submitAllUpdates();
+    ManifestManip::writeFiles();
+    ManifestManip::closeFile();
     ce.Skip();
 }

@@ -63,11 +63,11 @@ void GitControl::resetChanges() {
         throw GitCtrlErr("Couldn't reset changes.", GitCtrlErr::FAIL_MANIP);
 }
 
-void GitControl::exitGitCtrl(bool warnUnpushed) {
-    if (!isActive)
+void GitControl::exitGitCtrl(bool throwErrors) {
+    if (!isActive && throwErrors)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
-    if (!isPushed && warnUnpushed)
+    if (!isPushed && throwErrors)
         throw GitCtrlErr("Are you sure you want to exit ScatterSync without pushing saved changes?", GitCtrlErr::UNPUSHED_EXIT);
 
     isActive = false;

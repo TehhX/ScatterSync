@@ -34,7 +34,7 @@ public:
     void setEdited();
     void resetChanges();
 
-    void exitGitCtrl(bool warnUnpushed = true); // Always warn unpushed unless user explicitly overrides warning.
+    void exitGitCtrl(bool throwErrors = true); // Always warn unpushed unless user explicitly overrides warning.
 
     ~GitControl();
 };

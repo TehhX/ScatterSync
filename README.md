@@ -21,12 +21,13 @@ This program uses data contained within binary (.bin) files that are structured 
 |:-----------------------------------:|:--------------------------------------------------------------------:|:------------:|
 |     Auto sync interval (seconds)    |          How long in seconds between auto sync. 0 for never.         |       4      |
 |             Scroll speed            |                    Scroll speed of the file list.                    |       2      |
-|          Auto sync on open          |         Should the files automatically sync with Git on open?        |      1/2*    |
-|       Prompt on unpushed exit       | Should the user be prompted if they attempt to exit without pushing? |      1/2*    |
+|          Auto sync on open          |         Should the files automatically sync with Git on open?        |      1/3*    |
+|       Prompt on unpushed exit       | Should the user be prompted if they attempt to exit without pushing? |      1/3*    |
+|        Auto init Git on open        |               Should GitControl be initialized on open?              |      1/3*    |
 |    Generic name for file *\<N\>*    |                 User-specified name for a given file.                |   Undefined  |
 | Backend identifier for file *\<N\>* |            Program-specified identifier for a given file.            |       4      |
 
-\* The two 1/2 byte sized data are contained within the same byte. The last bit of that byte contains PoUE, and the second last contains ASoO. The first 6 bits are currently unused.
+\* The three 1/3 byte sized data are contained within the same byte. The last bit of that byte contains PoUE, the second last contains ASoO, and the third last contains AIGoO. The first 5 bits are currently unused.
 
 ### scatterSyncLocal.bin
 |               Name               |                   Description                  | Size (Bytes) |

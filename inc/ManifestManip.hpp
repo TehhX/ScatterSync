@@ -7,18 +7,16 @@
 #include <stdexcept>
 #include <map>
 #include <utility>
+#include <functional>
 
 class ManiManiErr : public std::runtime_error {
 public:
     enum ErrCode : u_char {
         FAIL_OPEN,
         FAIL_CLOSE,
-
         FAIL_READ,
         FAIL_WRITE,
-
         FAIL_ACCESS,
-
         FAIL_IDENT
     };
 
@@ -33,25 +31,20 @@ public:
     All integrals are read/written in little endian.
 */
 class ManifestManip {
+public:
+    using UFIPair = std::pair<std::string, std::string>;
+    using UFIMap = std::map<u_long, UFIPair>;
+    using ForEachFunc = std::function<void(const UFIMap::iterator& iter)>;
+
+private:
     enum class ByteCount : u_char {
-        CHAR   = 1,
-        U_CHAR = CHAR,
-        BYTE   = CHAR, // Single byte
-
-        INT    = 2,
-        U_INT  = INT,
-
-        LONG   = 4,
-        U_LONG = LONG,
-        IDENT  = LONG  // Map identifier
+        SCROLL_SPEED = 2,
+        IDENT        = 4,
+        AUTO_SYNC    = 4
     };
 
-    // The type of userFileInfo, which is a map between unique identifiers and both their generic name and local path.
-    using ufiPairType = std::pair<std::string, std::string>;
-    using ufiMapType = std::map<u_long, ufiPairType>;
-
-    // For each unique identifier, there is a generic name (first) and local path (second).
-    static inline ufiMapType userFileInfo {};
+    // For each unique identifier, there is a generic name (first) and local path (second). Commonly referred to as UFI.
+    static inline UFIMap userFileInfo {};
 
     static inline std::fstream fileStream {};
 
@@ -71,14 +64,14 @@ class ManifestManip {
     static void writeCloud();
     static void writeLocal();
 
-    static ufiPairType& tryAccess(u_long uniqueIdent);
+    static UFIPair& getPair(u_long uniqueIdent);
 
 public:
     ManifestManip() = delete; // Entirely static class
 
-    // TODO: Returning an iterator publically exposes a lot, figure out a more encapsulating way of doing this later
-    static inline ufiMapType::iterator getBegin() { return userFileInfo.begin(); }
-    static inline ufiMapType::iterator getEnd()   { return userFileInfo.end();   }
+    static void forEach(const ManifestManip::ForEachFunc& forEachFunc);
+
+    static UFIMap::iterator createNewFileMap();
 
     static std::string& genNameOf(u_long uniqueIdent);
     static std::string& localPathOf(u_long uniqueIdent);
