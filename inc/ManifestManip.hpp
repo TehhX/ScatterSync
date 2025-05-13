@@ -47,7 +47,8 @@ class ManifestManip {
     };
 
     // The type of userFileInfo, which is a map between unique identifiers and both their generic name and local path.
-    using ufiMapType = std::map<u_long, std::pair<std::string, std::string>>;
+    using ufiPairType = std::pair<std::string, std::string>;
+    using ufiMapType = std::map<u_long, ufiPairType>;
 
     // For each unique identifier, there is a generic name (first) and local path (second).
     static inline ufiMapType userFileInfo {};
@@ -70,7 +71,7 @@ class ManifestManip {
     static void writeCloud();
     static void writeLocal();
 
-    static void tryAccess(u_long uniqueIdent);
+    static ufiPairType& tryAccess(u_long uniqueIdent);
 
 public:
     ManifestManip() = delete; // Entirely static class

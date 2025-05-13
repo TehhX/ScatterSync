@@ -11,14 +11,14 @@ class FileList : public wxPanel {
     std::vector<FileItem*> fileItems;
     int maxScroll { FileItem::itemMargin - SS_GLOBALDEFS::WSY };
 
+    void scroll(wxMouseEvent& me);
+
 public:
     static constexpr int topMargin { 60 };
 
     FileList(wxWindow* parent);
 
     void addFileItem(u_llong uniqueIdent);
-
-    void scroll(wxMouseEvent& me);
 
     void submitAllUpdates();
 };

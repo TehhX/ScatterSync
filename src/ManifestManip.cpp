@@ -91,9 +91,10 @@ void ManifestManip::readLocal() {
     openLocal();
 
     while (fileStream.peek() != EOF) {
-        u_long ident      { readIntegral(ByteCount::IDENT) };
-        std::string path  { readVariableLen() };
+        u_long ident     { readIntegral(ByteCount::IDENT) };
+        std::string path { readVariableLen() };
 
+        // This only works if readLocal() is ALWAYS called after readCloud(), as this assumes map keys have already been created by readCloud().
         userFileInfo.find(ident)->second.second = path;
     }
 }
@@ -133,7 +134,7 @@ void ManifestManip::writeCloud() {
         fileStream << out;
     }
 
-    for (auto i { getBegin() }; i != getEnd(); i++) {
+    for (auto i { userFileInfo.begin() }; i != userFileInfo.end(); i++) {
         writeVariableLen(genNameOf(i->first));
         writeIntegral(i->first, ByteCount::U_LONG);
     }
@@ -142,33 +143,31 @@ void ManifestManip::writeCloud() {
 void ManifestManip::writeLocal() {
     openLocal();
 
-    for (auto i { getBegin() }; i != getEnd(); i++) {
+    for (auto i { userFileInfo.begin() }; i != userFileInfo.end(); i++) {
         writeIntegral(i->first, ByteCount::IDENT);
         writeVariableLen(localPathOf(i->first));
     }
 }
 
-void ManifestManip::tryAccess(u_long uniqueIdent) {
-    if (userFileInfo.find(uniqueIdent) == userFileInfo.end())
+ManifestManip::ufiPairType& ManifestManip::tryAccess(u_long uniqueIdent) {
+    const ufiMapType::iterator mapIterator { userFileInfo.find(uniqueIdent) };
+
+    if (mapIterator == userFileInfo.end())
         throw ManiManiErr("Identifier does not exist.", ManiManiErr::FAIL_ACCESS);
+    else
+        return mapIterator->second;
 }
 
 std::string& ManifestManip::genNameOf(u_long uniqueIdent) {
-    tryAccess(uniqueIdent);
-
-    return userFileInfo[uniqueIdent].first;
+    return tryAccess(uniqueIdent).first;
 }
 
 std::string& ManifestManip::localPathOf(u_long uniqueIdent) {
-    tryAccess(uniqueIdent);
-
-    return userFileInfo[uniqueIdent].second;
+    return tryAccess(uniqueIdent).second;
 }
 
 // TODO: Untested
 std::string ManifestManip::fileNameOf(u_long uniqueIdent) {
-    tryAccess(uniqueIdent);
-
     std::string name { localPathOf(uniqueIdent) };
 
     size_t i { name.length() };
