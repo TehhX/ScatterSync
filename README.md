@@ -14,7 +14,7 @@ Git will ignore everything inside `build/` as per the .gitignore file, which is 
 Refer to the [latest release](https://github.com/TehhX/ScatterSync/releases/latest) for a precompiled Linux or Windows64 executable with the latest version of Scatter Sync. They should work out of the box; just place them in the directory of your ScatterSync personal repository (the one used for file synchronization, not the one with the source code this README is inside of). From there, just follow the [End-User Instructions](#end-user-instructions).
 
 ## Binary Data File Structures
-This program uses data contained within binary (.bin) files that are structured in a predefined way. A size of "Undefined" means that it may change in length from file N<sub>1</sub> to N<sub>2</sub>, but will always end in a null terminator for file reading purposes. All data is written directly next to one another in the order of the table from top to bottom.
+This program uses data contained within binary (.bin) files that are structured in a predefined way. A size of "Undefined" means that it may change in length from file N to the next, but will always end in a null terminator. All data is written directly next to one another in the order of the table from top to bottom in little endian. Examples of both binary files may be found in SampleFiles/.
 
 ### scatterSyncCloud.bin
 |                 Name                |                              Description                             | Size (Bytes) |
@@ -25,14 +25,12 @@ This program uses data contained within binary (.bin) files that are structured 
 |       Prompt on unpushed exit       | Should the user be prompted if they attempt to exit without pushing? |      1/3*    |
 |        Auto init Git on open        |               Should GitControl be initialized on open?              |      1/3*    |
 |    Generic name for file *\<N\>*    |                 User-specified name for a given file.                |   Undefined  |
-| Backend identifier for file *\<N\>* |            Program-specified identifier for a given file.            |       4      |
 
 \* The three 1/3 byte sized data are contained within the same byte. The last bit of that byte contains PoUE, the second last contains ASoO, and the third last contains AIGoO. The first 5 bits are currently unused.
 
 ### scatterSyncLocal.bin
 |               Name               |                   Description                  | Size (Bytes) |
 |:--------------------------------:|:----------------------------------------------:|:------------:|
-| File identifier for file *\<N\>* | Program specified identifier for a given file. |       4      |
 |    File path for file *\<N\>*    |        Local file path for a given file.       |   Undefined  |
 
 ## End-User Instructions

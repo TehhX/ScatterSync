@@ -21,7 +21,7 @@ public:
 
     void createNewFile(wxCommandEvent&);
 
-    void addFileItem(u_llong uniqueIdent);
+    void addFileItem(size_t index);
 
     void submitAllUpdates();
 };

@@ -83,22 +83,17 @@ void ManifestManip::readCloud() {
 
     while (fileStream.peek() != EOF) {
         std::string genName { readVariableLen() };
-        u_long ident        { readIntegral(ByteCount::IDENT) };
 
-        userFileInfo.insert({ ident, { genName, "NULL" } });
+        userFileInfo.push_back({ genName, "NULL" });
     }
 }
 
 void ManifestManip::readLocal() {
     openLocal();
 
-    while (fileStream.peek() != EOF) {
-        u_long ident     { readIntegral(ByteCount::IDENT) };
-        std::string path { readVariableLen() };
-
-        // This only works if readLocal() is ALWAYS called after readCloud(), as this assumes map keys have already been created by readCloud().
-        userFileInfo.find(ident)->second.second = path;
-    }
+    size_t index { 0 };
+    while (fileStream.peek() != EOF)
+        userFileInfo[index++].second = readVariableLen();
 }
 
 void ManifestManip::writeVariableLen(std::string_view value) {
@@ -137,50 +132,32 @@ void ManifestManip::writeCloud() {
         fileStream << out;
     }
 
-    for (auto i { userFileInfo.begin() }; i != userFileInfo.end(); i++) {
-        writeVariableLen(genNameOf(i->first));
-        writeIntegral(i->first, ByteCount::IDENT);
-    }
+    for (size_t i { 0 }; i < userFileInfo.size(); i++)
+        writeVariableLen(genericNameOf(i));
 }
 
 void ManifestManip::writeLocal() {
     openLocal();
 
-    for (auto i { userFileInfo.begin() }; i != userFileInfo.end(); i++) {
-        writeIntegral(i->first, ByteCount::IDENT);
-        writeVariableLen(localPathOf(i->first));
-    }
+    for (size_t i { 0 }; i < userFileInfo.size(); i++)
+        writeVariableLen(localPathOf(i));
 }
 
-ManifestManip::UFIPair& ManifestManip::getPair(u_long uniqueIdent) {
-    const UFIMap::iterator mapIterator { userFileInfo.find(uniqueIdent) };
-
-    if (mapIterator == userFileInfo.end())
-        throw ManiManiErr("Identifier does not exist.", ManiManiErr::FAIL_ACCESS);
-    else
-        return mapIterator->second;
+size_t ManifestManip::createNewFileElement() {
+    userFileInfo.push_back({ "Generic Name Here", "Local Path Here" });
+    return userFileInfo.size() - 1;
 }
 
-void ManifestManip::forEach(const ManifestManip::ForEachFunc& forEachFunc) {
-    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++)
-        forEachFunc(iter);
+std::string& ManifestManip::genericNameOf(size_t index) {
+    return userFileInfo[index].first;
 }
 
-ManifestManip::UFIMap::iterator ManifestManip::createNewFileMap() {
-    userFileInfo.insert({ (--userFileInfo.end())->first + 1, { "Generic Name Here", "Local Path Here" } });
-    return --userFileInfo.end();
+std::string& ManifestManip::localPathOf(size_t index) {
+    return userFileInfo[index].second;
 }
 
-std::string& ManifestManip::genNameOf(u_long uniqueIdent) {
-    return getPair(uniqueIdent).first;
-}
-
-std::string& ManifestManip::localPathOf(u_long uniqueIdent) {
-    return getPair(uniqueIdent).second;
-}
-
-std::string ManifestManip::fileNameOf(u_long uniqueIdent) {
-    std::string name { localPathOf(uniqueIdent) };
+std::string ManifestManip::fileNameOf(size_t index) {
+    std::string name { localPathOf(index) };
 
     size_t i { name.length() };
     while (--i != SIZE_MAX)

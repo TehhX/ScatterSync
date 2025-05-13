@@ -5,9 +5,8 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
-#include <map>
+#include <vector>
 #include <utility>
-#include <functional>
 
 class ManiManiErr : public std::runtime_error {
 public:
@@ -17,7 +16,7 @@ public:
         FAIL_READ,
         FAIL_WRITE,
         FAIL_ACCESS,
-        FAIL_IDENT
+        FAIL_INDEX
     };
 
     const ErrCode errCode;
@@ -26,25 +25,20 @@ public:
     : std::runtime_error { mssg }, errCode { errCode } {}
 };
 
-/*
-    A class for reading, writing, and accessing static data from the manifest files.
-    All integrals are read/written in little endian.
-*/
+// A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
 public:
     using UFIPair = std::pair<std::string, std::string>;
-    using UFIMap = std::map<u_long, UFIPair>;
-    using ForEachFunc = std::function<void(const UFIMap::iterator& iter)>;
+    using UFIVector = std::vector<UFIPair>;
 
 private:
     enum class ByteCount : u_char {
         SCROLL_SPEED = 2,
-        IDENT        = 4,
         AUTO_SYNC    = 4
     };
 
-    // For each unique identifier, there is a generic name (first) and local path (second). Commonly referred to as UFI.
-    static inline UFIMap userFileInfo {};
+    // For each element, there is a generic name (first) and local path (second). Commonly referred to as UFI.
+    static inline UFIVector userFileInfo {};
 
     static inline std::fstream fileStream {};
 
@@ -64,18 +58,17 @@ private:
     static void writeCloud();
     static void writeLocal();
 
-    static UFIPair& getPair(u_long uniqueIdent);
-
 public:
     ManifestManip() = delete; // Entirely static class
 
-    static void forEach(const ManifestManip::ForEachFunc& forEachFunc);
+    // Returns index of new file element
+    static size_t createNewFileElement();
 
-    static UFIMap::iterator createNewFileMap();
+    static std::string& genericNameOf(size_t index);
+    static std::string& localPathOf(size_t index);
+    static std::string fileNameOf(size_t index);
 
-    static std::string& genNameOf(u_long uniqueIdent);
-    static std::string& localPathOf(u_long uniqueIdent);
-    static std::string fileNameOf(u_long uniqueIdent);
+    static inline size_t size() { return userFileInfo.size(); }
 
     static void readFiles();
     static void writeFiles();

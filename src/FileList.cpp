@@ -8,7 +8,7 @@
 #include <functional>
 
 void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
-    addFileItem(ManifestManip::createNewFileMap()->first);
+    addFileItem(ManifestManip::createNewFileElement());
 }
 
 FileList::FileList(wxWindow* parent)
@@ -17,15 +17,14 @@ FileList::FileList(wxWindow* parent)
     SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    ManifestManip::forEach({ [this](const ManifestManip::UFIMap::iterator& map) -> void {
-        addFileItem(map->first);
-    }});
+    for (size_t i { 0 }; i < ManifestManip::size(); i++)
+        addFileItem(i);
 
     Show();
 }
 
-void FileList::addFileItem(u_llong uniqueIdent) {
-    auto fileItem = new FileItem { this, uniqueIdent };
+void FileList::addFileItem(size_t index) {
+    auto fileItem = new FileItem { this, index };
     fileItem->SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     fileItem->SetPosition({ 0, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
     fileItem->Show();

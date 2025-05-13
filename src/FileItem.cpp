@@ -4,15 +4,15 @@
 
 #include <ManifestManip.hpp>
 
-FileItem::FileItem(wxWindow* parent, u_llong uniqueIdent)
-: wxPanel { parent, wxID_ANY, wxDefaultPosition, { SS_GLOBALDEFS::WSX, itemHeight } }, uniqueIdent { uniqueIdent } {
+FileItem::FileItem(wxWindow* parent, size_t elementIndex)
+: wxPanel { parent, wxID_ANY, wxDefaultPosition, { SS_GLOBALDEFS::WSX, itemHeight } }, elementIndex { elementIndex } {
     SetBackgroundColour(SS_GLOBALDEFS::LIGHT_GREY);
 
-    genNameField = new wxTextCtrl { this, wxID_ANY, ManifestManip::genNameOf(uniqueIdent), { 0, 0 }, itemSize };
-    pathField = new wxTextCtrl { this, wxID_ANY, ManifestManip::localPathOf(uniqueIdent), { itemWidth, 0 }, itemSize };
+    genNameField = new wxTextCtrl { this, wxID_ANY, ManifestManip::genericNameOf(elementIndex), { 0, 0 }, itemSize };
+    pathField = new wxTextCtrl    { this, wxID_ANY, ManifestManip::localPathOf(elementIndex), { itemWidth, 0 }, itemSize };
 }
 
 void FileItem::submitUpdate() {
-    ManifestManip::genNameOf(uniqueIdent)   = genNameField->GetValue();
-    ManifestManip::localPathOf(uniqueIdent) = pathField->GetValue();
+    ManifestManip::genericNameOf(elementIndex) = genNameField->GetValue();
+    ManifestManip::localPathOf(elementIndex)   = pathField->GetValue();
 }

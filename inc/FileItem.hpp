@@ -10,7 +10,7 @@ class FileItem : public wxPanel {
     // TODO: Should have a file browser here later for the pathField.
 
 public:
-    const u_llong uniqueIdent;
+    const size_t elementIndex;
 
     static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 2 };
     static constexpr int itemHeight { 50 };
@@ -18,7 +18,7 @@ public:
 
     static constexpr int itemMargin { 10 };
 
-    FileItem(wxWindow* parent, u_llong uniqueIdent);
+    FileItem(wxWindow* parent, size_t elementIndex);
 
     void submitUpdate();
 };
