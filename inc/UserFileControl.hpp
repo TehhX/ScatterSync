@@ -29,13 +29,15 @@ public:
     enum class Action : u_char {
         MOVE_TO_REPO,
         MOVE_TO_LOCAL,
-        DEL
+        REMOVE
     };
 
 private:
     static inline bool active { false };
 
     static inline std::vector<Status> statusArr {};
+
+    static const Status& searchForAndAssign(size_t index);
 
 public:
     UserFileControl() = delete;
@@ -48,6 +50,8 @@ public:
     static void takeActionsAll(Action action);
 
     static bool exists(std::string_view name);
+
+    static const Status& registerNew(size_t index);
 
     static inline size_t size() { return statusArr.size(); }
 };

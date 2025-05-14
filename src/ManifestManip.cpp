@@ -144,7 +144,7 @@ void ManifestManip::writeLocal() {
 }
 
 size_t ManifestManip::createNewFileElement() {
-    userFileInfo.push_back({ "Generic Name Here", "Local Path Here" });
+    userFileInfo.push_back({ "Generic Name Here", "Local/Path/Here" });
     return userFileInfo.size() - 1;
 }
 

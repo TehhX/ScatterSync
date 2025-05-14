@@ -55,6 +55,9 @@ void MainFrame::settEvent(wxCommandEvent& WXUNUSED(event)) {
 
 void MainFrame::syncEvent(wxCommandEvent& WXUNUSED(event)) {
     try {
+        fileList->submitAllUpdates();
+        ManifestManip::writeFiles();
+        gCtrl.setEdited();
         gCtrl.sync();
     } catch (const GitCtrlErr& gce) {
         if (gce.errCode == GitCtrlErr::SOME_OUTSIDE)

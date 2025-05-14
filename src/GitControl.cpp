@@ -44,10 +44,10 @@ void GitControl::push(bool warnNotInRepo) {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
-    if (isPushed)
-        throw GitCtrlErr("Already pushed.", GitCtrlErr::FAIL_MANIP);
+    system("git add .");
+    system("git commit -m \"Automated ScatterSync commit.\"");
 
-    if (system("git add .") || system("git commit -m \"Automated ScatterSync commit.\"") || system("git push"))
+    if (system("git push"))
         throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
 
     isPushed = true;
@@ -61,9 +61,6 @@ void GitControl::sync(bool warnNotInRepo) {
 void GitControl::setEdited() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
-
-    if (system("git add ."))
-        throw GitCtrlErr("Could not add files to Git.",GitCtrlErr::FAIL_MANIP);
 
     isPushed = false;
 }

@@ -6,7 +6,24 @@
 #include <UserFileControl.hpp>
 
 // UserFileControl event functions to bind buttons to
-#define UFC_EVENT_FUNC(ACTION) inline void ACTION## Event(wxCommandEvent& WXUNUSED(event) = wxCommandEvent {}) { try { UserFileControl::takeActionsAll(UserFileControl::Action::ACTION##); } catch (const UserFileErr& ufe) { POPUP(ufe.what()) }}
+#define UFC_EVENT_FUNC(ACTION) \
+    inline void ACTION##Event(wxCommandEvent& event) { \
+        try { \
+            gCtrl.setEdited(); \
+            fileList->submitAllUpdates(); \
+            UserFileControl::takeActionsAll(UserFileControl::Action::ACTION); \
+        } catch (const UserFileErr& ufe) { \
+            POPUP(ufe.what()) \
+        } catch(const GitCtrlErr& gce) { \
+            YN_POP(std::string { gce.what() } + std::string { " Proceed anyway?" }, \
+                try { \
+                    UserFileControl::takeActionsAll(UserFileControl::Action::ACTION); \
+                } catch (const UserFileErr& ufe) { \
+                    POPUP(ufe.what()) \
+                } \
+            ) \
+        } \
+    }
 
 class MainFrame : public wxFrame {
     GitControl gCtrl;
@@ -22,17 +39,21 @@ class MainFrame : public wxFrame {
 
     FileList* fileList;
 
-    inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10, 15 }; }
+    inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { (prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10), 15 }; }
 
     void closeWinEvent(wxCloseEvent&);
 
     void standardExit(wxCloseEvent&, bool warnUnpushed = true);
 
-    void settEvent(wxCommandEvent& event = wxCommandEvent {});
+    void settEvent(wxCommandEvent&);
+    inline void settEvent() { wxCommandEvent ev {}; settEvent(ev); }
 
-    void syncEvent(wxCommandEvent& event = wxCommandEvent {});
+    void syncEvent(wxCommandEvent&);
+    inline void syncEvent() { wxCommandEvent ev {}; syncEvent(ev); }
 
-    void initEvent(wxCommandEvent&  = wxCommandEvent {});
+    void initEvent(wxCommandEvent&);
+    inline void initEvent() { wxCommandEvent ev {}; initEvent(ev); }
+
 
     UFC_EVENT_FUNC(MOVE_TO_REPO)
     UFC_EVENT_FUNC(MOVE_TO_LOCAL)

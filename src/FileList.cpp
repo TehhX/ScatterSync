@@ -6,7 +6,10 @@
 #include <ManifestManip.hpp>
 
 void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
-    addFileItem(ManifestManip::createNewFileElement());
+    size_t index { ManifestManip::createNewFileElement() };
+
+    addFileItem(index);
+    UserFileControl::registerNew(index);
 }
 
 FileList::FileList(wxWindow* parent)
