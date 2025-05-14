@@ -67,7 +67,7 @@ public:
         bool initGitOnOpen;
     };
 
-    static inline Settings settings { 0, false, 7, true, true };
+    static inline Settings settings {};
 
     MainFrame();
 };
