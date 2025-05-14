@@ -1,5 +1,7 @@
 #include <GitControl.hpp>
 
+#include <UserFileControl.hpp>
+
 #include <cstdlib>
 #include <iostream>
 
@@ -32,7 +34,13 @@ void GitControl::pull() {
         throw GitCtrlErr("Pull failed.", GitCtrlErr::FAIL_MANIP);
 }
 
-void GitControl::push() {
+void GitControl::push(bool warnNotInRepo) {
+    if (warnNotInRepo) {
+        for (size_t i { 0 }; i < UserFileControl::size(); i++)
+            if (UserFileControl::getStatus(i) != UserFileControl::Status::IN_REPO)
+                throw GitCtrlErr("Some files are not inside the repository. Proceed anyway?", GitCtrlErr::SOME_OUTSIDE);
+    }
+
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
@@ -43,6 +51,11 @@ void GitControl::push() {
         throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
 
     isPushed = true;
+}
+
+void GitControl::sync(bool warnNotInRepo) {
+    pull();
+    push(warnNotInRepo);
 }
 
 void GitControl::setEdited() {

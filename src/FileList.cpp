@@ -5,8 +5,6 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
-#include <functional>
-
 void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
     addFileItem(ManifestManip::createNewFileElement());
 }

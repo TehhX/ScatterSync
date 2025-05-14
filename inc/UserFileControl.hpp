@@ -29,7 +29,7 @@ public:
     enum class Action : u_char {
         MOVE_TO_REPO,
         MOVE_TO_LOCAL,
-        DELETE
+        DEL
     };
 
 private:
@@ -45,5 +45,9 @@ public:
     static inline const Status& getStatus(size_t index) { return statusArr[index]; }
     static void takeAction(size_t index, Action action);
 
+    static void takeActionsAll(Action action);
+
     static bool exists(std::string_view name);
+
+    static inline size_t size() { return statusArr.size(); }
 };

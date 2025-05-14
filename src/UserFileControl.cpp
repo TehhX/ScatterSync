@@ -36,22 +36,35 @@ void UserFileControl::takeAction(size_t index, Action action) {
     if (getStatus(index) == Status::MISSING)
         throw UserFileErr("Couldn't find specified file.", UserFileErr::ACTION_ON_MISSING);
 
+    // If attempted action already matches status
+    if ((statusArr[index] == Status::IN_REPO  && action == Action::MOVE_TO_REPO ) || (statusArr[index] == Status::IN_LOCAL && action == Action::MOVE_TO_LOCAL))
+        return;
+
     switch (action) {
     case Action::MOVE_TO_REPO:
         fsys::rename(ManifestManip::localPathOf(index), ManifestManip::fileNameOf(index));
+        statusArr[index] = Status::IN_REPO;
         break;
 
     case Action::MOVE_TO_LOCAL:        
         fsys::rename(ManifestManip::fileNameOf(index), ManifestManip::localPathOf(index));
+        statusArr[index] = Status::IN_LOCAL;
         break;
 
-    case Action::DELETE:
+    case Action::DEL:
         if (getStatus(index) == Status::IN_REPO)
             fsys::remove(ManifestManip::fileNameOf(index));
 
         else // Status::IN_LOCAL
             fsys::remove(ManifestManip::localPathOf(index));
+
+        statusArr[index] = Status::MISSING;
     }
+}
+
+void UserFileControl::takeActionsAll(Action action) {
+    for (size_t i { 0 }; i < ManifestManip::size(); i++)
+        takeAction(i, action);
 }
 
 bool UserFileControl::exists(std::string_view name) {

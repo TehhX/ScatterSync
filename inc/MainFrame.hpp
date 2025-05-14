@@ -3,14 +3,19 @@
 #include <FileList.hpp>
 #include <GitControl.hpp>
 #include <SettingsFrame.hpp>
+#include <UserFileControl.hpp>
+
+// UserFileControl event functions to bind buttons to
+#define UFC_EVENT_FUNC(ACTION) inline void ACTION## Event(wxCommandEvent& WXUNUSED(event) = wxCommandEvent {}) { try { UserFileControl::takeActionsAll(UserFileControl::Action::ACTION##); } catch (const UserFileErr& ufe) { POPUP(ufe.what()) }}
 
 class MainFrame : public wxFrame {
     GitControl gCtrl;
 
     wxButton* initBttn;
-    wxButton* pushBttn;
-    wxButton* pullBttn;
+    wxButton* syncBttn;
     wxButton* settBttn;
+    wxButton* moveRepoBttn;
+    wxButton* moveLocalBttn;
     wxButton* trackNewBttn;
 
     SettingsFrame* settingsFrame;
@@ -19,14 +24,18 @@ class MainFrame : public wxFrame {
 
     inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10, 15 }; }
 
-    void initEventBttn(wxCommandEvent&);
-    void pushEventBttn(wxCommandEvent&);
-    void pullEventBttn(wxCommandEvent&);
-    void settEventBttn(wxCommandEvent&);
-
     void closeWinEvent(wxCloseEvent&);
 
     void standardExit(wxCloseEvent&, bool warnUnpushed = true);
+
+    void settEvent(wxCommandEvent& event = wxCommandEvent {});
+
+    void syncEvent(wxCommandEvent& event = wxCommandEvent {});
+
+    void initEvent(wxCommandEvent&  = wxCommandEvent {});
+
+    UFC_EVENT_FUNC(MOVE_TO_REPO)
+    UFC_EVENT_FUNC(MOVE_TO_LOCAL)
 
 public:
     struct Settings {
@@ -41,3 +50,5 @@ public:
 
     MainFrame();
 };
+
+#undef UFC_EVENT_FUNC

@@ -11,7 +11,8 @@ public:
         FAIL_GITEXEC,
         FAIL_MANIP,
         UNPUSHED_EXIT,
-        BAD_INIT
+        BAD_INIT,
+        SOME_OUTSIDE
     };
 
     inline GitCtrlErr(const std::string& mssg, ErrCode errCode)
@@ -28,7 +29,9 @@ public:
     void init();
 
     void pull();
-    void push();
+    void push(bool warnNotInRepo = true);
+    void sync(bool warnNotInRepo = true);
+
     void setEdited();
     void resetChanges();
 
