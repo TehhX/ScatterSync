@@ -2,6 +2,8 @@
 
 #include <wx/wx.h>
 
+#include <stdexcept>
+
 // Displays a simple popup window with MSSG as the message and no further user input.
 #define POPUP(MSSG) \
     auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK } }; \
@@ -31,3 +33,11 @@ namespace SS_GLOBALDEFS {
     inline static const wxColor LIGHT_GREY { 64, 64, 64 };
     inline static const wxColor WHITE { 255, 255, 255 };
 }
+
+class ScatterSyncErr : public std::runtime_error {
+public:
+    const u_char errCode;
+
+    inline ScatterSyncErr(const std::string& message, u_char errCode)
+    : std::runtime_error { message }, errCode { errCode } {}
+};

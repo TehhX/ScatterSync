@@ -8,7 +8,7 @@
 #include <vector>
 #include <utility>
 
-class ManiManiErr : public std::runtime_error {
+class ManiManiErr : public ScatterSyncErr {
 public:
     enum ErrCode : u_char {
         FAIL_OPEN,
@@ -19,10 +19,8 @@ public:
         FAIL_INDEX
     };
 
-    const ErrCode errCode;
-
     inline ManiManiErr(const std::string& mssg, ErrCode errCode)
-    : std::runtime_error { mssg }, errCode { errCode } {}
+    : ScatterSyncErr { mssg, SC(u_char, errCode) } {}
 };
 
 // A class for reading, writing, and accessing static data from the manifest files.

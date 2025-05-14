@@ -4,21 +4,46 @@
 
 #include <string>
 #include <stdexcept>
+#include <vector>
 
-class UserFileErr : public std::runtime_error {
+class UserFileErr : public ScatterSyncErr {
 public:
     enum ErrCode : u_char {
-        FAIL_MOVE,
-        FAIL_CHECKSTAT
+        DOUBLE_INIT,
+        ACTION_ON_MISSING,
+        INIT_MISSING
     };
 
-    const ErrCode errCode;
-
     inline UserFileErr(const std::string& message, ErrCode errCode)
-    : std::runtime_error { message }, errCode { errCode } {}
+    : ScatterSyncErr { message, errCode } {}
 };
 
-namespace UserFileControl {
-    void moveFile(size_t index, bool inToOut);
-    bool exists(std::string_view fileName);
+class UserFileControl {
+public:
+    enum class Status : u_char {
+        IN_LOCAL,
+        IN_REPO,
+        MISSING
+    };
+
+    enum class Action : u_char {
+        MOVE_TO_REPO,
+        MOVE_TO_LOCAL,
+        DELETE
+    };
+
+private:
+    static inline bool active { false };
+
+    static inline std::vector<Status> statusArr {};
+
+public:
+    UserFileControl() = delete;
+
+    static void init();
+
+    static inline const Status& getStatus(size_t index) { return statusArr[index]; }
+    static void takeAction(size_t index, Action action);
+
+    static bool exists(std::string_view name);
 };

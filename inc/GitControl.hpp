@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-class GitCtrlErr : public std::runtime_error {
+class GitCtrlErr : public ScatterSyncErr {
 public:
     enum ErrCode : u_char {
         FAIL_GITEXEC,
@@ -14,10 +14,8 @@ public:
         BAD_INIT
     };
 
-    const ErrCode errCode;
-
     inline GitCtrlErr(const std::string& mssg, ErrCode errCode)
-    : std::runtime_error { mssg }, errCode { errCode } {}
+    : ScatterSyncErr { mssg, SC(u_char, errCode) } {}
 };
 
 class GitControl {
