@@ -1,6 +1,9 @@
 # Local data binary file
 scatterSyncLocal.bin
 
+# Binary backup files
+*.bin.bak
+
 # Scatter Sync Application
 ScatterSync.exe
 ScatterSync.out
