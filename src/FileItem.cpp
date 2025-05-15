@@ -15,7 +15,7 @@ FileItem::FileItem(wxWindow* parent, ManifestManip::Ident elementIdent)
 
 void FileItem::submitUpdate() {
     std::string directory { dirField->GetValue() };
-    if (directory[directory.length() - 1] != '/')
+    if (directory.length() > 0 && directory[directory.length() - 1] != '/')
         dirField->SetValue(directory.append({ '/' }));
 
     ManifestManip::genericNameOf(elementIdent) = genNameField->GetValue();

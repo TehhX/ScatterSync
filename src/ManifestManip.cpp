@@ -133,6 +133,7 @@ void ManifestManip::writeCloud() {
         writeIntegral(ident, ByteCount::IDENT);
         writeVariableLen(fileNameOf(ident));
         writeVariableLen(genericNameOf(ident));
+        UserFileControl::registerNew(ident);
     }
 }
 
@@ -173,6 +174,9 @@ std::string ManifestManip::dirAndNameOf(Ident ident) {
 }
 
 void ManifestManip::readFiles() {
+    if (userFileInfo.size() > 0)
+        userFileInfo.clear();
+
     readCloud();
     readLocal();
 }

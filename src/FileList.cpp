@@ -9,7 +9,6 @@ void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
     ManifestManip::Ident ident { ManifestManip::createNewFileElement() };
 
     addFileItem(ident);
-    UserFileControl::registerNew(ident);
 }
 
 FileList::FileList(wxWindow* parent)
@@ -18,9 +17,14 @@ FileList::FileList(wxWindow* parent)
     SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    MANI_FOR_EACH(addFileItem(ident);)
+    intake();
 
     Show();
+}
+
+void FileList::intake() {
+    fileItems.clear();
+    MANI_FOR_EACH(addFileItem(ident);)
 }
 
 void FileList::addFileItem(ManifestManip::Ident ident) {

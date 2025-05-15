@@ -57,8 +57,13 @@ void MainFrame::syncEvent(wxCommandEvent& WXUNUSED(event)) {
     try {
         fileList->submitAllUpdates();
         ManifestManip::writeFiles();
+
         gCtrl.setEdited();
         gCtrl.sync();
+
+        ManifestManip::readFiles();
+
+        fileList->intake();
     } catch (const GitCtrlErr& gce) {
         if (gce.errCode == GitCtrlErr::SOME_OUTSIDE)
             YN_POP(gce.what(), gCtrl.sync(false);)

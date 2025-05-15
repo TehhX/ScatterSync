@@ -5,6 +5,7 @@
 
 #include <ScatterSyncDefs.hpp>
 
+#include <ManifestManip.hpp>
 #include <FileItem.hpp>
 
 class FileList : public wxPanel {
@@ -18,6 +19,8 @@ public:
     static constexpr int topMargin { 60 };
 
     FileList(wxWindow* parent);
+
+    void intake();
 
     void createNewFile(wxCommandEvent&);
 
