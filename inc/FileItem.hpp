@@ -8,13 +8,16 @@
 
 class FileItem : public wxPanel {
     wxTextCtrl* genNameField;
-    wxTextCtrl* pathField;
+    wxTextCtrl* dirField;
+    wxTextCtrl* nameField;
+
     // TODO: Should have a file browser here later for the pathField.
+    // TODO: Should have a delete button here later (maybe)
 
 public:
     const ManifestManip::Ident elementIdent;
 
-    static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 2 };
+    static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 3 };
     static constexpr int itemHeight { 50 };
     const wxSize itemSize { itemWidth, itemHeight };
 

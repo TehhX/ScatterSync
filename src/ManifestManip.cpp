@@ -5,9 +5,9 @@
 #include <MainFrame.hpp>
 #include <UserFileControl.hpp>
 
-constexpr u_char autoSyncOnOpenMask { 0b100 };
-constexpr u_char promptUnpushedMask { 0b010 };
-constexpr u_char initGitOnOpenMask  { 0b001 };
+constexpr u_char autoSyncOnOpenMask { 0b1000 };
+constexpr u_char promptUnpushedMask { 0b0100 };
+constexpr u_char initGitOnOpenMask  { 0b0010 };
 
 void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
@@ -36,7 +36,7 @@ std::string ManifestManip::readVariableLen() {
             value.append({ input });
     }
 
-    throw ManiManiErr("Reached end of file without closing string.", ManiManiErr::FAIL_READ);
+    throw ManiManiErr("Reached end of file without closing string (Lacks null terminator).", ManiManiErr::FAIL_READ);
 }
 
 u_short ManifestManip::readIntegral(ByteCount bytes) {
@@ -51,20 +51,10 @@ u_short ManifestManip::readIntegral(ByteCount bytes) {
         value += SC(u_long, input) << byteW;
     }
 
-    if (SC(u_char, bytes) > 2) {
-        fileStream >> input;
-        value += SC(u_long, input) << byteW * 2;
-    }
-
-    if (SC(u_char, bytes) > 3) {
-        fileStream >> input;
-        value += SC(u_long, input) << byteW * 3;
-    }
-
     return value;
 }
 
-ManifestManip::UFIPair& ManifestManip::get(Ident ident) {
+ManifestManip::UFITuple& ManifestManip::get(Ident ident) {
     UFIMap::iterator iter { userFileInfo.find(ident) };
 
     if (iter == userFileInfo.end())
@@ -89,10 +79,11 @@ void ManifestManip::readCloud() {
     }
 
     while (fileStream.peek() != EOF) {
-        Ident     id { readIntegral(ByteCount::IDENT) };
-        GenName name { readVariableLen() };
+        Ident          id { readIntegral(ByteCount::IDENT) };
+        FileName fileName { readVariableLen() };
+        GenName   genName { readVariableLen() };
 
-        userFileInfo.insert({ id, { name, "" } });
+        userFileInfo.insert({ id, { genName, "", fileName }});
     }
 }
 
@@ -100,10 +91,10 @@ void ManifestManip::readLocal() {
     openLocal();
 
     while (fileStream.peek() != EOF) {
-        Ident       id { readIntegral(ByteCount::IDENT) };
-        LocalPath path { readVariableLen() };
+        Ident    ident { readIntegral(ByteCount::IDENT) };
+        LocalDir dir   { readVariableLen() };
 
-        localPathOf(id) = path;
+        localDirOf(ident) = dir;
     }
 }
 
@@ -119,12 +110,6 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 
     if (SC(u_char, bytes) > 1)
         fileStream << SC(u_char, (value & 0x00'00'FF'00) >> byteW);
-
-    if (SC(u_char, bytes) > 2)
-        fileStream << SC(u_char, (value & 0x00'FF'00'00) >> byteW * 2);
-
-    if (SC(u_char, bytes) > 3)
-        fileStream << SC(u_char, (value & 0xFF'00'00'00) >> byteW * 3);
 }
 
 void ManifestManip::writeCloud() {
@@ -143,8 +128,11 @@ void ManifestManip::writeCloud() {
     }
 
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
-        writeIntegral(iter->first, ByteCount::IDENT);
-        writeVariableLen(iter->second.first);
+        Ident ident { iter->first };
+
+        writeIntegral(ident, ByteCount::IDENT);
+        writeVariableLen(fileNameOf(ident));
+        writeVariableLen(genericNameOf(ident));
     }
 }
 
@@ -152,8 +140,10 @@ void ManifestManip::writeLocal() {
     openLocal();
 
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
-        writeIntegral(iter->first, ByteCount::IDENT);
-        writeVariableLen(iter->second.second);
+        Ident ident { iter->first };
+
+        writeIntegral(ident, ByteCount::IDENT);
+        writeVariableLen(localDirOf(ident));
     }
 }
 
@@ -170,32 +160,16 @@ ManifestManip::Ident ManifestManip::createNewFileElement() {
     else
         newIdent = 1;
 
-    userFileInfo.insert({ newIdent, { "Generic Name Here", "local/path/to.file" }});
+    userFileInfo.insert({ newIdent, { "Generic Name Here", "local/path/", "fileName.txt" }});
 
     return newIdent;
 }
 
-std::string& ManifestManip::genericNameOf(Ident ident) {
-    return get(ident).first;
-}
+std::string ManifestManip::dirAndNameOf(Ident ident) {
+    std::string directoryAndName { "" };
+    directoryAndName.append(localDirOf(ident)).append(fileNameOf(ident));
 
-std::string& ManifestManip::localPathOf(Ident ident) {
-    return get(ident).second;
-}
-
-std::string ManifestManip::fileNameOf(Ident ident) {
-    std::string name { localPathOf(ident) };
-
-    if (name == "")
-        return "";
-
-    size_t i { name.length() };
-    while (--i != SIZE_MAX) // Unsigned analogue of "--i >= 0".
-        if (name[i] == '/')
-            return name.substr(i + 1);
-
-    // Only gets to this point if '/' is not found in path.
-    throw ManiManiErr(std::string { "Requested file path: \"" } + name + std::string { "\"is invalid (lacks file name)." }, ManiManiErr::FAIL_ACCESS);
+    return directoryAndName;
 }
 
 void ManifestManip::readFiles() {

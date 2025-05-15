@@ -39,7 +39,7 @@ class MainFrame : public wxFrame {
 
     FileList* fileList;
 
-    inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { (prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10), 15 }; }
+    static inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { (prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10), 15 }; }
 
     void closeWinEvent(wxCloseEvent&);
 

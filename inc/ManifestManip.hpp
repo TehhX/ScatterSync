@@ -6,7 +6,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <map>
-#include <utility>
+#include <tuple>
 #include <functional>
 
 #define MANI_FOR_EACH(EXEC) ManifestManip::_forEach_({[&](ManifestManip::Ident ident) -> void { EXEC }});
@@ -29,12 +29,13 @@ public:
 // A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
 public:
-    using Ident       = u_short;
-    using GenName     = std::string;
-    using LocalPath   = std::string;
+    using Ident    = u_short;
+    using GenName  = std::string;
+    using LocalDir = std::string;
+    using FileName = std::string;
 
-    using UFIPair     = std::pair<GenName, LocalPath>;
-    using UFIMap      = std::map<Ident, UFIPair>;
+    using UFITuple = std::tuple<GenName, LocalDir, FileName>;
+    using UFIMap   = std::map<Ident, UFITuple>;
 
 private:
     enum class ByteCount : u_char {
@@ -44,7 +45,7 @@ private:
 
     static constexpr u_char byteW { 8 }; // Bits/Byte width
 
-    // For each element, there is a generic name (first) and local path (second). Commonly referred to as UFI.
+    // For each element, there is a generic name (0th), local directory (1st), and file name (2nd). Commonly referred to as UFI.
     static inline UFIMap userFileInfo {};
 
     static inline std::fstream fileStream {};
@@ -56,7 +57,7 @@ private:
     static std::string readVariableLen();
     static u_short readIntegral(ByteCount bytes);
 
-    static UFIPair& get(Ident ident);
+    static UFITuple& get(Ident ident);
 
     static void readCloud();
     static void readLocal();
@@ -75,9 +76,10 @@ public:
 
     static Ident createNewFileElement();
 
-    static std::string& genericNameOf(Ident ident);
-    static std::string& localPathOf(Ident ident);
-    static std::string fileNameOf(Ident ident);
+    static inline GenName& genericNameOf(Ident ident) { return std::get<0>(get(ident)); }
+    static inline LocalDir& localDirOf(Ident ident)   { return std::get<1>(get(ident)); }
+    static inline FileName& fileNameOf(Ident ident)   { return std::get<2>(get(ident)); }
+    static std::string dirAndNameOf(Ident ident);
 
     static void readFiles();
     static void writeFiles();

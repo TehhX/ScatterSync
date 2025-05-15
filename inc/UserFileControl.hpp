@@ -60,6 +60,6 @@ public:
 
     static const Status& registerNew(ManifestManip::Ident ident);
 
-    // Returns true if any status is not equal to checkAgainst
+    // Returns true if any status is not equal to checkAgainst. Really specific use for GitControl.
     static bool areAnyNotStatus(Status checkAgainst);
 };

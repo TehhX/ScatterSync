@@ -13,7 +13,7 @@ const UserFileControl::Status& UserFileControl::searchForAndAssign(ManifestManip
         fileStat = Status::UNTRACKED;
     else if (exists(ManifestManip::fileNameOf(ident)))
         fileStat = Status::IN_REPO;
-    else if (exists(ManifestManip::localPathOf(ident)))
+    else if (exists(ManifestManip::dirAndNameOf(ident)))
         fileStat = Status::IN_LOCAL;
     else
         fileStat = Status::MISSING;
@@ -51,8 +51,8 @@ void UserFileControl::init() {
 }
 
 const UserFileControl::Status& UserFileControl::getStatus(ManifestManip::Ident ident) {
-    const Status& constRefToStat { getStatusMutable(ident) };
-    return constRefToStat;
+    // Should implicit cast from "Status&" to "const Status&" for encapsulation
+    return getStatusMutable(ident);
 }
 
 void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
@@ -68,11 +68,11 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
         return;
 
     if (action == Action::MOVE_TO_REPO) {
-        fsys::rename(ManifestManip::localPathOf(ident), ManifestManip::fileNameOf(ident));
+        fsys::rename(ManifestManip::dirAndNameOf(ident), ManifestManip::fileNameOf(ident));
         getStatusMutable(ident) = Status::IN_REPO;
     }
-    else { 
-        fsys::rename(ManifestManip::fileNameOf(ident), ManifestManip::localPathOf(ident));
+    else { // Same as "elif (action == Action::MOVE_TO_LOCAL) {"
+        fsys::rename(ManifestManip::fileNameOf(ident), ManifestManip::dirAndNameOf(ident));
         getStatusMutable(ident) = Status::IN_LOCAL;
     }
 }
@@ -82,6 +82,7 @@ void UserFileControl::takeActionsForEach(Action action) {
         try {
             takeAction(ident, action);
         } catch (const UserFileErr& ufe) {
+            // If attempting to move an untracked file: ignore and go next. Elif: rethrow it.
             if (ufe.errCode != UserFileErr::MOVE_ON_UNTRACKED)
                 throw ufe;
         }

@@ -24,15 +24,16 @@ This program uses data contained within binary (.bin) files that are structured 
 |      Prompt on unpushed exit     | Should the user be prompted if they attempt to exit without pushing? |      1/3*    |
 |       Auto init Git on open      |               Should GitControl be initialized on open?              |      1/3*    |
 |    Identifier for file *\<N\>*   |        The identifier for the program to differentiate files.        |       2      |
+|     File name for file *\<N\>*   |               The file name (not path) for a given file              |   Undefined  |
 |   Generic name for file *\<N\>*  |                 User-specified name for a given file.                |   Undefined  |
 
 \* The three 1/3 byte sized data are contained within the same byte. They are stored in the same order as the table in bits 1-3.
 
 ### scatterSyncLocal.bin
-|             Name            |             Description            | Size (Bytes) |
-|:---------------------------:|:----------------------------------:|:------------:|
-| Identifier for file *\<N\>* | To match idents with ...cloud.bin. |       2      |
-|  File path for file *\<N\>* |  Local file path for a given file. |   Undefined  |
+|               Name               |               Description               | Size (Bytes) |
+|:--------------------------------:|:---------------------------------------:|:------------:|
+|    Identifier for file *\<N\>*   |    To match idents with ...cloud.bin.   |       2      |
+|  File directory for file *\<N\>* |  Local file directory for a given file. |   Undefined  |
 
 ## End-User Instructions
 These are instructions for actually using Scatter Sync, not building or compiling.
