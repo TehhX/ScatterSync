@@ -5,10 +5,8 @@
 class SettingsFrame : public wxFrame {
     static inline const wxSize buttonSize { 140, -1 };
 
-    wxStaticText* autoSyncLabel;
     wxStaticText* scrollSpeedLabel;
 
-    wxTextCtrl* autoSyncDelta;
     wxTextCtrl* scrollSpeed;
 
     wxCheckBox* autoSync;

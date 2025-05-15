@@ -5,9 +5,9 @@
 #include <MainFrame.hpp>
 #include <UserFileControl.hpp>
 
-constexpr u_char autoSyncOnOpenMask { 0b00'00'00'01 };
-constexpr u_char promptUnpushedMask { 0b00'00'00'10 };
-constexpr u_char initGitOnOpenMask  { 0b00'00'01'00 };
+constexpr u_char autoSyncOnOpenMask { 0b100 };
+constexpr u_char promptUnpushedMask { 0b010 };
+constexpr u_char initGitOnOpenMask  { 0b001 };
 
 void ManifestManip::openFile(std::string name) {
     if (fileStream.is_open())
@@ -39,9 +39,7 @@ std::string ManifestManip::readVariableLen() {
     throw ManiManiErr("Reached end of file without closing string.", ManiManiErr::FAIL_READ);
 }
 
-u_long ManifestManip::readIntegral(ByteCount bytes) {
-    constexpr static u_char byteW { 8 }; // Bits/Byte width
-
+u_short ManifestManip::readIntegral(ByteCount bytes) {
     u_long value { 0 };
     u_char input { 0 };
 
@@ -66,11 +64,20 @@ u_long ManifestManip::readIntegral(ByteCount bytes) {
     return value;
 }
 
+ManifestManip::UFIPair& ManifestManip::get(Ident ident) {
+    UFIMap::iterator iter { userFileInfo.find(ident) };
+
+    if (iter == userFileInfo.end())
+        throw ManiManiErr("Requested index does not exist.", ManiManiErr::FAIL_ACCESS);
+
+    else
+        return iter->second;
+}
+
 void ManifestManip::readCloud() {
     openCloud();
 
-    MainFrame::settings.autoSyncSeconds = readIntegral(ByteCount::AUTO_SYNC);
-    MainFrame::settings.scrollSpeed     = readIntegral(ByteCount::SCROLL_SPEED);
+    MainFrame::settings.scrollSpeed = readIntegral(ByteCount::SCROLL_SPEED);
 
     { // These bools use the same byte, different bits
         char in;
@@ -82,18 +89,22 @@ void ManifestManip::readCloud() {
     }
 
     while (fileStream.peek() != EOF) {
-        std::string genName { readVariableLen() };
+        Ident     id { readIntegral(ByteCount::IDENT) };
+        GenName name { readVariableLen() };
 
-        userFileInfo.push_back({ genName, "NULL" });
+        userFileInfo.insert({ id, { name, "NULL" } });
     }
 }
 
 void ManifestManip::readLocal() {
     openLocal();
 
-    size_t index { 0 };
-    while (fileStream.peek() != EOF)
-        userFileInfo[index++].second = readVariableLen();
+    while (fileStream.peek() != EOF) {
+        Ident       id { readIntegral(ByteCount::IDENT) };
+        LocalPath path { readVariableLen() };
+
+        localPathOf(id) = path;
+    }
 }
 
 void ManifestManip::writeVariableLen(std::string_view value) {
@@ -107,20 +118,19 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
     fileStream << SC(u_char, value & 0x00'00'00'FF);
 
     if (SC(u_char, bytes) > 1)
-        fileStream << SC(u_char, (value & 0x00'00'FF'00) >> 8);
+        fileStream << SC(u_char, (value & 0x00'00'FF'00) >> byteW);
 
     if (SC(u_char, bytes) > 2)
-        fileStream << SC(u_char, (value & 0x00'FF'00'00) >> 16);
+        fileStream << SC(u_char, (value & 0x00'FF'00'00) >> byteW * 2);
 
     if (SC(u_char, bytes) > 3)
-        fileStream << SC(u_char, (value & 0xFF'00'00'00) >> 24);
+        fileStream << SC(u_char, (value & 0xFF'00'00'00) >> byteW * 3);
 }
 
 void ManifestManip::writeCloud() {
     openCloud();
 
-    writeIntegral(MainFrame::settings.autoSyncSeconds, ByteCount::AUTO_SYNC);
-    writeIntegral(MainFrame::settings.scrollSpeed,     ByteCount::SCROLL_SPEED);
+    writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::SCROLL_SPEED);
 
     { // These bools use the same byte, different bits
         auto out { SC(u_char,
@@ -132,40 +142,57 @@ void ManifestManip::writeCloud() {
         fileStream << out;
     }
 
-    for (size_t i { 0 }; i < userFileInfo.size(); i++)
-        writeVariableLen(genericNameOf(i));
+    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
+        writeIntegral(iter->first, ByteCount::IDENT);
+        writeVariableLen(iter->second.first);
+    }
 }
 
 void ManifestManip::writeLocal() {
     openLocal();
 
-    for (size_t i { 0 }; i < userFileInfo.size(); i++)
-        writeVariableLen(localPathOf(i));
+    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
+        writeIntegral(iter->first, ByteCount::IDENT);
+        writeVariableLen(iter->second.second);
+    }
 }
 
-size_t ManifestManip::createNewFileElement() {
-    userFileInfo.push_back({ "Generic Name Here", "Local/Path/Here" });
-    return userFileInfo.size() - 1;
+void ManifestManip::_forEach_(std::function<void(Ident ident)> func) {
+    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++)
+        func(iter->first);
 }
 
-std::string& ManifestManip::genericNameOf(size_t index) {
-    return userFileInfo[index].first;
+ManifestManip::Ident ManifestManip::createNewFileElement() {
+    Ident newIdent;
+
+    if (userFileInfo.size() > 0)
+        newIdent = SC(Ident, (std::prev(userFileInfo.end())->first) + 1);
+    else
+        newIdent = 1;
+
+    userFileInfo.insert({ newIdent, { "Generic Name Here", "local/path/to.file" }});
+
+    return newIdent;
 }
 
-std::string& ManifestManip::localPathOf(size_t index) {
-    return userFileInfo[index].second;
+std::string& ManifestManip::genericNameOf(Ident ident) {
+    return get(ident).first;
 }
 
-std::string ManifestManip::fileNameOf(size_t index) {
-    std::string name { localPathOf(index) };
+std::string& ManifestManip::localPathOf(Ident ident) {
+    return get(ident).second;
+}
+
+std::string ManifestManip::fileNameOf(Ident ident) {
+    std::string name { localPathOf(ident) };
 
     size_t i { name.length() };
-    while (--i != SIZE_MAX)
+    while (--i != SIZE_MAX) // Unsigned analogue of "--i >= 0".
         if (name[i] == '/')
             return name.substr(i + 1);
 
     // Only gets to this point if '/' is not found in path.
-    throw ManiManiErr("Requested file path is invalid", ManiManiErr::FAIL_ACCESS);
+    throw ManiManiErr(std::string { "Requested file path: \"" } + name + std::string { "\"is invalid (lacks file name)." }, ManiManiErr::FAIL_ACCESS);
 }
 
 void ManifestManip::readFiles() {

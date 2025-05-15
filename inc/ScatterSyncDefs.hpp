@@ -23,6 +23,8 @@ using u_char  = unsigned char;
 using u_long  = unsigned long;
 using u_llong = unsigned long long;
 
+using u_short  = unsigned short;
+
 // Contains specific definitions for Scatter Sync.
 namespace SS_GLOBALDEFS {
     inline constexpr int WSX { 800 }; // Window size in the X axis, or width.

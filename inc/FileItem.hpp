@@ -2,6 +2,8 @@
 
 #include <ScatterSyncDefs.hpp>
 
+#include <ManifestManip.hpp>
+
 #include <string>
 
 class FileItem : public wxPanel {
@@ -10,7 +12,7 @@ class FileItem : public wxPanel {
     // TODO: Should have a file browser here later for the pathField.
 
 public:
-    const size_t elementIndex;
+    const ManifestManip::Ident elementIdent;
 
     static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 2 };
     static constexpr int itemHeight { 50 };
@@ -18,7 +20,7 @@ public:
 
     static constexpr int itemMargin { 10 };
 
-    FileItem(wxWindow* parent, size_t elementIndex);
+    FileItem(wxWindow* parent, ManifestManip::Ident elementIdent);
 
     void submitUpdate();
 };

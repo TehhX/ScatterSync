@@ -11,13 +11,13 @@
         try { \
             gCtrl.setEdited(); \
             fileList->submitAllUpdates(); \
-            UserFileControl::takeActionsAll(UserFileControl::Action::ACTION); \
+            UserFileControl::takeActionsForEach(UserFileControl::Action::ACTION); \
         } catch (const UserFileErr& ufe) { \
             POPUP(ufe.what()) \
         } catch(const GitCtrlErr& gce) { \
             YN_POP(std::string { gce.what() } + std::string { " Proceed anyway?" }, \
                 try { \
-                    UserFileControl::takeActionsAll(UserFileControl::Action::ACTION); \
+                    UserFileControl::takeActionsForEach(UserFileControl::Action::ACTION); \
                 } catch (const UserFileErr& ufe) { \
                     POPUP(ufe.what()) \
                 } \
@@ -54,15 +54,13 @@ class MainFrame : public wxFrame {
     void initEvent(wxCommandEvent&);
     inline void initEvent() { wxCommandEvent ev {}; initEvent(ev); }
 
-
     UFC_EVENT_FUNC(MOVE_TO_REPO)
     UFC_EVENT_FUNC(MOVE_TO_LOCAL)
 
 public:
     struct Settings {
-        long autoSyncSeconds;
+        u_char scrollSpeed;
         bool autoSyncOnOpen;
-        int scrollSpeed;
         bool exitPromptUnpushed;
         bool initGitOnOpen;
     };

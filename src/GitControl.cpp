@@ -35,11 +35,8 @@ void GitControl::pull() {
 }
 
 void GitControl::push(bool warnNotInRepo) {
-    if (warnNotInRepo) {
-        for (size_t i { 0 }; i < UserFileControl::size(); i++)
-            if (UserFileControl::getStatus(i) != UserFileControl::Status::IN_REPO)
-                throw GitCtrlErr("Some files are not inside the repository. Proceed anyway?", GitCtrlErr::SOME_OUTSIDE);
-    }
+    if (warnNotInRepo && UserFileControl::areAnyNotStatus(UserFileControl::Status::IN_REPO))
+        throw GitCtrlErr("Some files are not inside the repository. Proceed anyway?", GitCtrlErr::SOME_OUTSIDE);
 
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);

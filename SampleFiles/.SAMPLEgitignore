@@ -7,4 +7,6 @@ scatterSyncLocal.bin
 # Scatter Sync Application
 ScatterSync.exe
 ScatterSync.out
+
+# wxWidgets Windows Libraries
 wx*.dll

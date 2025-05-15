@@ -5,8 +5,11 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
-#include <vector>
+#include <map>
 #include <utility>
+#include <functional>
+
+#define MANI_FOR_EACH(EXEC) ManifestManip::_forEach_({[&](ManifestManip::Ident ident) -> void { EXEC }});
 
 class ManiManiErr : public ScatterSyncErr {
 public:
@@ -26,17 +29,23 @@ public:
 // A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
 public:
-    using UFIPair = std::pair<std::string, std::string>;
-    using UFIVector = std::vector<UFIPair>;
+    using Ident       = u_short;
+    using GenName     = std::string;
+    using LocalPath   = std::string;
+
+    using UFIPair     = std::pair<GenName, LocalPath>;
+    using UFIMap      = std::map<Ident, UFIPair>;
 
 private:
     enum class ByteCount : u_char {
-        SCROLL_SPEED = 2,
-        AUTO_SYNC    = 4
+        SCROLL_SPEED = 1,
+        IDENT        = 2
     };
 
+    static constexpr u_char byteW { 8 }; // Bits/Byte width
+
     // For each element, there is a generic name (first) and local path (second). Commonly referred to as UFI.
-    static inline UFIVector userFileInfo {};
+    static inline UFIMap userFileInfo {};
 
     static inline std::fstream fileStream {};
 
@@ -45,7 +54,9 @@ private:
     static inline void openLocal() { openFile("scatterSyncLocal.bin"); }
 
     static std::string readVariableLen();
-    static u_long readIntegral(ByteCount bytes);
+    static u_short readIntegral(ByteCount bytes);
+
+    static UFIPair& get(Ident ident);
 
     static void readCloud();
     static void readLocal();
@@ -59,14 +70,14 @@ private:
 public:
     ManifestManip() = delete; // Entirely static class
 
-    // Returns index of new file element
-    static size_t createNewFileElement();
+    // Use the MANI_FOR_EACH(EXEC) macro instead of calling this directly.
+    static void _forEach_(std::function<void(Ident ident)> func);
 
-    static std::string& genericNameOf(size_t index);
-    static std::string& localPathOf(size_t index);
-    static std::string fileNameOf(size_t index);
+    static Ident createNewFileElement();
 
-    static inline size_t size() { return userFileInfo.size(); }
+    static std::string& genericNameOf(Ident ident);
+    static std::string& localPathOf(Ident ident);
+    static std::string fileNameOf(Ident ident);
 
     static void readFiles();
     static void writeFiles();

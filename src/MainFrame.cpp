@@ -64,6 +64,8 @@ void MainFrame::syncEvent(wxCommandEvent& WXUNUSED(event)) {
             YN_POP(gce.what(), gCtrl.sync(false);)
         else
             POPUP(gce.what())
+    } catch (const ManiManiErr& mme) {
+        POPUP(mme.what())
     }
 }
 

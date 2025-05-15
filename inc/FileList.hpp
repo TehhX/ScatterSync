@@ -21,7 +21,7 @@ public:
 
     void createNewFile(wxCommandEvent&);
 
-    void addFileItem(size_t index);
+    void addFileItem(ManifestManip::Ident ident);
 
     void submitAllUpdates();
 };

@@ -2,16 +2,19 @@
 
 #include <ScatterSyncDefs.hpp>
 
+#include <ManifestManip.hpp>
+
 #include <string>
 #include <stdexcept>
-#include <vector>
+#include <map>
 
 class UserFileErr : public ScatterSyncErr {
 public:
     enum ErrCode : u_char {
         DOUBLE_INIT,
         ACTION_ON_MISSING,
-        INIT_MISSING
+        INIT_MISSING,
+        INVALID_IDENT
     };
 
     inline UserFileErr(const std::string& message, ErrCode errCode)
@@ -35,23 +38,27 @@ public:
 private:
     static inline bool active { false };
 
-    static inline std::vector<Status> statusArr {};
+    static inline std::map<ManifestManip::Ident, Status> statusArr {};
 
-    static const Status& searchForAndAssign(size_t index);
+    static const Status& searchForAndAssign(ManifestManip::Ident ident);
+
+    static Status& getStatusMutable(ManifestManip::Ident ident);
 
 public:
     UserFileControl() = delete;
 
     static void init();
 
-    static inline const Status& getStatus(size_t index) { return statusArr[index]; }
-    static void takeAction(size_t index, Action action);
+    static const Status& getStatus(ManifestManip::Ident ident);
 
-    static void takeActionsAll(Action action);
+    static void takeAction(ManifestManip::Ident ident, Action action);
+
+    static void takeActionsForEach(Action action);
 
     static bool exists(std::string_view name);
 
-    static const Status& registerNew(size_t index);
+    static const Status& registerNew(ManifestManip::Ident ident);
 
-    static inline size_t size() { return statusArr.size(); }
+    // Returns true if any status is not equal to checkAgainst
+    static bool areAnyNotStatus(Status checkAgainst);
 };

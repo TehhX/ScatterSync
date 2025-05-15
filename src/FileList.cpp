@@ -6,10 +6,10 @@
 #include <ManifestManip.hpp>
 
 void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
-    size_t index { ManifestManip::createNewFileElement() };
+    ManifestManip::Ident ident { ManifestManip::createNewFileElement() };
 
-    addFileItem(index);
-    UserFileControl::registerNew(index);
+    addFileItem(ident);
+    UserFileControl::registerNew(ident);
 }
 
 FileList::FileList(wxWindow* parent)
@@ -18,14 +18,13 @@ FileList::FileList(wxWindow* parent)
     SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
-    for (size_t i { 0 }; i < ManifestManip::size(); i++)
-        addFileItem(i);
+    MANI_FOR_EACH(addFileItem(ident);)
 
     Show();
 }
 
-void FileList::addFileItem(size_t index) {
-    auto fileItem = new FileItem { this, index };
+void FileList::addFileItem(ManifestManip::Ident ident) {
+    auto fileItem = new FileItem { this, ident };
     fileItem->SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
     fileItem->SetPosition({ 0, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
     fileItem->Show();
@@ -38,12 +37,12 @@ void FileList::addFileItem(size_t index) {
 
 void FileList::scroll(wxMouseEvent& me) {
     if (me.GetWheelRotation() > 0) {
-        SetPosition({ 0, GetPosition().y + MainFrame::settings.scrollSpeed });
+        SetPosition({ 0, GetPosition().y + SC(int, MainFrame::settings.scrollSpeed) });
 
         if (GetPosition().y > topMargin)
             SetPosition({ 0, topMargin });
     } else {
-        SetPosition({ 0, GetPosition().y - MainFrame::settings.scrollSpeed });
+        SetPosition({ 0, GetPosition().y - SC(int, MainFrame::settings.scrollSpeed) });
 
         if (GetPosition().y < -maxScroll)
             SetPosition({ 0, -maxScroll });

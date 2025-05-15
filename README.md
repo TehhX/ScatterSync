@@ -17,21 +17,22 @@ Refer to the [latest release](https://github.com/TehhX/ScatterSync/releases/late
 This program uses data contained within binary (.bin) files that are structured in a predefined way. A size of "Undefined" means that it may change in length from file N to the next, but will always end in a null terminator. All data is written directly next to one another in the order of the table from top to bottom in little endian. Examples of both binary files may be found in SampleFiles/.
 
 ### scatterSyncCloud.bin
-|                 Name                |                              Description                             | Size (Bytes) |
-|:-----------------------------------:|:--------------------------------------------------------------------:|:------------:|
-|     Auto sync interval (seconds)    |          How long in seconds between auto sync. 0 for never.         |       4      |
-|             Scroll speed            |                    Scroll speed of the file list.                    |       2      |
-|          Auto sync on open          |         Should the files automatically sync with Git on open?        |      1/3*    |
-|       Prompt on unpushed exit       | Should the user be prompted if they attempt to exit without pushing? |      1/3*    |
-|        Auto init Git on open        |               Should GitControl be initialized on open?              |      1/3*    |
-|    Generic name for file *\<N\>*    |                 User-specified name for a given file.                |   Undefined  |
+|               Name               |                              Description                             | Size (Bytes) |
+|:--------------------------------:|:--------------------------------------------------------------------:|:------------:|
+|           Scroll speed           |                    Scroll speed of the file list.                    |       1      |
+|         Auto sync on open        |         Should the files automatically sync with Git on open?        |      1/3*    |
+|      Prompt on unpushed exit     | Should the user be prompted if they attempt to exit without pushing? |      1/3*    |
+|       Auto init Git on open      |               Should GitControl be initialized on open?              |      1/3*    |
+|    Identifier for file *\<N\>*   |        The identifier for the program to differentiate files.        |       2      |
+|   Generic name for file *\<N\>*  |                 User-specified name for a given file.                |   Undefined  |
 
-\* The three 1/3 byte sized data are contained within the same byte. The last bit of that byte contains PoUE, the second last contains ASoO, and the third last contains AIGoO. The first 5 bits are currently unused.
+\* The three 1/3 byte sized data are contained within the same byte. They are stored in the same order as the table in bits 1-3.
 
 ### scatterSyncLocal.bin
-|               Name               |                   Description                  | Size (Bytes) |
-|:--------------------------------:|:----------------------------------------------:|:------------:|
-|    File path for file *\<N\>*    |        Local file path for a given file.       |   Undefined  |
+|             Name            |             Description            | Size (Bytes) |
+|:---------------------------:|:----------------------------------:|:------------:|
+| Identifier for file *\<N\>* | To match idents with ...cloud.bin. |       2      |
+|  File path for file *\<N\>* |  Local file path for a given file. |   Undefined  |
 
 ## End-User Instructions
 These are instructions for actually using Scatter Sync, not building or compiling.
@@ -55,4 +56,20 @@ These are instructions for actually using Scatter Sync, not building or compilin
 * When launching Scatter Sync on Windows, .dll files are reported missing: Make sure to move wxWidgets' .dll files next to ScatterSync.[exe, out].
 
 ## Sample Files Folder
-The `SampleFiles/` folder contains sample binary and .gitignore files for use with ScatterSync. `SampleFiles/ExampleFiles/` contains example files with one tracked file to be examined in a hex editor to learn more about the binary files. `SampleFiles/DefaultFiles` contains the default binary files that come with the precompiled binaries in [releases](https://github.com/TehhX/ScatterSync/releases). The `.SAMPLEgitignore` file contains the standard ignores for ScatterSync personal repositories, and also comes with releases. When using it, it would need to be renamed to `.gitignore`, but contains "SAMPLE" so that Git ignores it in *this* repo in particular.
+The `SampleFiles/` folder contains sample binary and .gitignore files for use with ScatterSync. The contained binary files are those which come with the precompiled binaries in [releases](https://github.com/TehhX/ScatterSync/releases). The `.SAMPLEgitignore` file contains the standard ignores for ScatterSync personal repositories, and also comes with releases. When using it, it would need to be renamed to `.gitignore`, but contains "SAMPLE" so that Git ignores it in *this* repo in particular.
+
+<br>
+
+`SampleFiles/scatterSyncCloud.bin` contains the following default values:
+* 13 scroll speed
+* Don't sync on open
+* Do prompt on unpushed exit
+* Do auto init on open
+* No file identifiers
+* No generic names
+
+<br>
+
+`SampleFiles/scatterSyncLocal.bin` contains the following default values:
+* No file identifiers
+* No local paths

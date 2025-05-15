@@ -1,13 +1,19 @@
 #include <SettingsFrame.hpp>
 
 #include <MainFrame.hpp>
+#include <ScatterSyncDefs.hpp>
 
 void SettingsFrame::onCloseEvent(wxCloseEvent& WXUNUSED(event)) {
-    autoSyncDelta->GetValue().ToLong(&MainFrame::settings.autoSyncSeconds);
-    scrollSpeed->GetValue().ToInt(&MainFrame::settings.scrollSpeed);
-    MainFrame::settings.autoSyncOnOpen = autoSync->GetValue();
+    int scrollInt { std::stoi(scrollSpeed->GetValue().ToStdString()) };
+    if (scrollInt < 0 || scrollInt > 255) {
+        POPUP("Scroll speed must be between 0 and 255.")
+        return;
+    }
+
+    MainFrame::settings.scrollSpeed        = SC(u_char, scrollInt);
+    MainFrame::settings.autoSyncOnOpen     = autoSync->GetValue();
     MainFrame::settings.exitPromptUnpushed = promptUnpushed->GetValue();
-    MainFrame::settings.initGitOnOpen = initGitOnOpen->GetValue();
+    MainFrame::settings.initGitOnOpen      = initGitOnOpen->GetValue();
 
     Hide();
 }
@@ -17,14 +23,10 @@ SettingsFrame::SettingsFrame(wxWindow* parent)
     SetClientSize(400, 185);
     CenterOnScreen();
 
-    autoSyncLabel = new wxStaticText { this, wxID_ANY, "Auto sync delay in seconds (0 for never):", { 10, 10 } };
-    autoSyncLabel->Wrap(180);
-
-    scrollSpeedLabel = new wxStaticText { this, wxID_ANY, "Scroll speed:", { 10, 60 } };
+    scrollSpeedLabel = new wxStaticText { this, wxID_ANY, "Scroll speed:", { 10, 20 } };
     scrollSpeedLabel->Wrap(180);
 
-    autoSyncDelta  = new wxTextCtrl { this, wxID_ANY, std::to_string(MainFrame::settings.autoSyncSeconds), { 220, 10 }, buttonSize };
-    scrollSpeed    = new wxTextCtrl { this, wxID_ANY, std::to_string(MainFrame::settings.scrollSpeed), { 220, 50 }, buttonSize };
+    scrollSpeed    = new wxTextCtrl { this, wxID_ANY, std::to_string(MainFrame::settings.scrollSpeed), { 220, 10 }, buttonSize };
     autoSync       = new wxCheckBox { this, wxID_ANY, "Sync files on open", { 10, 90 } };
     promptUnpushed = new wxCheckBox { this, wxID_ANY, "Prompt on attempting to exit unpushed", { 10, 120 } };
     initGitOnOpen  = new wxCheckBox { this, wxID_ANY, "Initialize git on open", { 10, 150 } };
