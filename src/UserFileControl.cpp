@@ -9,7 +9,9 @@ namespace fsys = std::filesystem;
 const UserFileControl::Status& UserFileControl::searchForAndAssign(ManifestManip::Ident ident) {
     Status fileStat;
 
-    if (exists(ManifestManip::fileNameOf(ident)))
+    if (ManifestManip::fileNameOf(ident) == "")
+        fileStat = Status::UNTRACKED;
+    else if (exists(ManifestManip::fileNameOf(ident)))
         fileStat = Status::IN_REPO;
     else if (exists(ManifestManip::localPathOf(ident)))
         fileStat = Status::IN_LOCAL;
@@ -57,34 +59,33 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
     if (getStatus(ident) == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
         throw UserFileErr("Couldn't find specified file.", UserFileErr::ACTION_ON_MISSING);
 
+    // If untracked, and no change to track it, and move action
+    if (getStatus(ident) == Status::UNTRACKED && searchForAndAssign(ident) == Status::UNTRACKED && (action == Action::MOVE_TO_LOCAL || action == Action::MOVE_TO_REPO))
+        throw UserFileErr("Attempted to move untracked file.", UserFileErr::MOVE_ON_UNTRACKED);
+
     // If attempted action already matches status
     if ((getStatus(ident) == Status::IN_REPO && action == Action::MOVE_TO_REPO ) || (getStatus(ident) == Status::IN_LOCAL && action == Action::MOVE_TO_LOCAL))
         return;
 
-    switch (action) {
-    case Action::MOVE_TO_REPO:
+    if (action == Action::MOVE_TO_REPO) {
         fsys::rename(ManifestManip::localPathOf(ident), ManifestManip::fileNameOf(ident));
         getStatusMutable(ident) = Status::IN_REPO;
-        break;
-
-    case Action::MOVE_TO_LOCAL:        
+    }
+    else { 
         fsys::rename(ManifestManip::fileNameOf(ident), ManifestManip::localPathOf(ident));
         getStatusMutable(ident) = Status::IN_LOCAL;
-        break;
-
-    case Action::REMOVE:
-        if (getStatus(ident) == Status::IN_REPO)
-            fsys::remove(ManifestManip::fileNameOf(ident));
-
-        else // Status::IN_LOCAL
-            fsys::remove(ManifestManip::localPathOf(ident));
-
-        getStatusMutable(ident) = Status::MISSING;
     }
 }
 
 void UserFileControl::takeActionsForEach(Action action) {
-    MANI_FOR_EACH(takeAction(ident, action);)
+    MANI_FOR_EACH(
+        try {
+            takeAction(ident, action);
+        } catch (const UserFileErr& ufe) {
+            if (ufe.errCode != UserFileErr::MOVE_ON_UNTRACKED)
+                throw ufe;
+        }
+    )
 }
 
 bool UserFileControl::exists(std::string_view name) {

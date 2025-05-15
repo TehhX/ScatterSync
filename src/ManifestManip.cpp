@@ -92,7 +92,7 @@ void ManifestManip::readCloud() {
         Ident     id { readIntegral(ByteCount::IDENT) };
         GenName name { readVariableLen() };
 
-        userFileInfo.insert({ id, { name, "NULL" } });
+        userFileInfo.insert({ id, { name, "" } });
     }
 }
 
@@ -185,6 +185,9 @@ std::string& ManifestManip::localPathOf(Ident ident) {
 
 std::string ManifestManip::fileNameOf(Ident ident) {
     std::string name { localPathOf(ident) };
+
+    if (name == "")
+        return "";
 
     size_t i { name.length() };
     while (--i != SIZE_MAX) // Unsigned analogue of "--i >= 0".

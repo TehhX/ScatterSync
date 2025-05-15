@@ -13,6 +13,7 @@ public:
     enum ErrCode : u_char {
         DOUBLE_INIT,
         ACTION_ON_MISSING,
+        MOVE_ON_UNTRACKED,
         INIT_MISSING,
         INVALID_IDENT
     };
@@ -26,13 +27,13 @@ public:
     enum class Status : u_char {
         IN_LOCAL,
         IN_REPO,
-        MISSING
+        MISSING,
+        UNTRACKED
     };
 
     enum class Action : u_char {
         MOVE_TO_REPO,
-        MOVE_TO_LOCAL,
-        REMOVE
+        MOVE_TO_LOCAL
     };
 
 private:

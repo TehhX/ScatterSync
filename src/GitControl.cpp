@@ -30,7 +30,7 @@ void GitControl::pull() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
 
-    if (system("git pull"))
+    if (system("git stash") || system("git pull") || system("git stash pop"))
         throw GitCtrlErr("Pull failed.", GitCtrlErr::FAIL_MANIP);
 }
 
