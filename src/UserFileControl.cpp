@@ -9,7 +9,7 @@ namespace fsys = std::filesystem;
 const UserFileControl::Status& UserFileControl::searchForAndAssign(ManifestManip::Ident ident) {
     Status fileStat;
 
-    if (ManifestManip::fileNameOf(ident) == "")
+    if (ManifestManip::localDirOf(ident) == "")
         fileStat = Status::LOCALLY_UNTRACKED;
     else if (exists(ManifestManip::fileNameOf(ident)))
         fileStat = Status::IN_REPO;
@@ -143,14 +143,10 @@ const UserFileControl::Status& UserFileControl::registerNew(ManifestManip::Ident
     return searchForAndAssign(ident);
 }
 
-bool UserFileControl::areAnyNotStatus(Status checkAgainst) {
+bool UserFileControl::areAnyStatus(Status checkAgainst) {
     for (auto iter { statusArr.begin() }; iter != statusArr.end(); iter++)
-        if (iter->second != checkAgainst)
+        if (iter->second == checkAgainst)
             return true;
 
     return false;
-}
-
-void UserFileControl::removeFile(std::string_view fileName) {
-    fsys::remove(fileName);
 }

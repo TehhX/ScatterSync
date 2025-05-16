@@ -38,7 +38,8 @@ void GitControl::pull() {
 }
 
 void GitControl::push(bool warnNotInRepo) {
-    if (warnNotInRepo && UserFileControl::areAnyNotStatus(UserFileControl::Status::IN_REPO))
+    // Should allow either in repo or locally untracked, not just in repo
+    if (warnNotInRepo && UserFileControl::areAnyStatus(UserFileControl::Status::IN_LOCAL))
         throw GitCtrlErr("Some files are not inside the repository. Proceed anyway?", GitCtrlErr::SOME_OUTSIDE);
 
     if (!isActive)
