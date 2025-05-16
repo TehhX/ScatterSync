@@ -6,7 +6,6 @@
 wxIMPLEMENT_APP(ScatterSyncApp);
 
 bool ScatterSyncApp::OnInit() {
-try {
     try {
         ManifestManip::readFiles();
     } catch (const ManiManiErr& mme) {
@@ -25,8 +24,4 @@ try {
     mainFrame = new MainFrame;
 
     return true;
-} catch (const ScatterSyncErr& sse) {
-    POPUP(sse.what())
-    return false;
-}
 }

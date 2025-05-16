@@ -69,11 +69,11 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
                 registerNew(ident);
                 takeAction(ident, action);
             } catch (const ManiManiErr& mme) {
-                throw mme;
+                throw;
             }
         }
         else
-            throw ufe;
+            throw;
     }
 
     if (*currentStatus == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
@@ -104,7 +104,7 @@ void UserFileControl::takeActionsForEach(Action action) {
         } catch (const UserFileErr& ufe) {
             // If attempting to move an untracked file: ignore and go next. Elif: rethrow it.
             if (ufe.errCode != UserFileErr::MOVE_ON_UNTRACKED)
-                throw ufe;
+                throw;
         }
     )
 }

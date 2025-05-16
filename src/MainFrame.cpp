@@ -13,7 +13,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
             switch(gce.errCode) {
             default:
                 std::cerr << "Unknown GCE error code.\n";
-                throw gce;
+                throw;
 
             case GitCtrlErr::BAD_INIT:
                 standardExit(ce, false);
@@ -31,7 +31,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
         switch (mme.errCode) {
         default:
             std::cerr << "Unknown MME error code.\n";
-            throw mme;
+            throw;
 
         case ManiManiErr::FAIL_CLOSE:
         case ManiManiErr::FAIL_WRITE:
