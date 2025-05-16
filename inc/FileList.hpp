@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <map>
 #include <string>
 
 #include <ScatterSyncDefs.hpp>
@@ -9,7 +9,7 @@
 #include <FileItem.hpp>
 
 class FileList : public wxPanel {
-    std::vector<FileItem*> fileItems;
+    std::map<ManifestManip::Ident, FileItem*> fileItems;
 
     int maxScroll { FileItem::itemMargin - SS_GLOBALDEFS::WSY };
 

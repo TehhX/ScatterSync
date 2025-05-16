@@ -19,7 +19,7 @@ public:
         FAIL_READ,
         FAIL_WRITE,
         FAIL_ACCESS,
-        FAIL_INDEX
+        FAIL_IDENT
     };
 
     inline ManiManiErr(const std::string& mssg, ErrCode errCode)
@@ -50,9 +50,9 @@ private:
 
     static inline std::fstream fileStream {};
 
-    static void openFile(std::string name);
-    static inline void openCloud() { openFile("scatterSyncCloud.bin"); }
-    static inline void openLocal() { openFile("scatterSyncLocal.bin"); }
+    static void openFile(std::string name, bool in);
+    static inline void openCloud(bool in) { openFile("scatterSyncCloud.bin", in); }
+    static inline void openLocal(bool in) { openFile("scatterSyncLocal.bin", in); }
 
     static std::string readVariableLen();
     static u_short readIntegral(ByteCount bytes);
@@ -75,6 +75,7 @@ public:
     static void _forEach_(std::function<void(Ident ident)> func);
 
     static Ident createNewFileElement();
+    static void removeFileElement(Ident ident);
 
     static inline GenName& genericNameOf(Ident ident) { return std::get<0>(get(ident)); }
     static inline LocalDir& localDirOf(Ident ident)   { return std::get<1>(get(ident)); }

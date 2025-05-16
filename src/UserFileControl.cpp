@@ -10,7 +10,7 @@ const UserFileControl::Status& UserFileControl::searchForAndAssign(ManifestManip
     Status fileStat;
 
     if (ManifestManip::fileNameOf(ident) == "")
-        fileStat = Status::UNTRACKED;
+        fileStat = Status::LOCALLY_UNTRACKED;
     else if (exists(ManifestManip::fileNameOf(ident)))
         fileStat = Status::IN_REPO;
     else if (exists(ManifestManip::dirAndNameOf(ident)))
@@ -34,6 +34,12 @@ UserFileControl::Status& UserFileControl::getStatusMutable(ManifestManip::Ident 
         return reqIter->second;
     else
         throw UserFileErr("Couldn't find requested status ident.", UserFileErr::INVALID_IDENT);
+}
+
+void UserFileControl::removeFromArr(ManifestManip::Ident ident) {
+    // Erase returns number of erased elements, if it erased nothing throw error
+    if (!statusArr.erase(ident))
+        throw UserFileErr("Attempted to remove nonexistent Status.", UserFileErr::INVALID_IDENT);
 }
 
 void UserFileControl::init() {
@@ -76,24 +82,44 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
             throw;
     }
 
-    if (*currentStatus == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
-        throw UserFileErr("Couldn't find specified file.", UserFileErr::ACTION_ON_MISSING);
+    if (action != Action::UNTRACK && *currentStatus == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
+        throw UserFileErr(std::string { "Couldn't find specified file: " } + ManifestManip::genericNameOf(ident), UserFileErr::ACTION_ON_MISSING);
 
     // If untracked, and no change to track it, and move action
-    if (*currentStatus == Status::UNTRACKED && searchForAndAssign(ident) == Status::UNTRACKED && (action == Action::MOVE_TO_LOCAL || action == Action::MOVE_TO_REPO))
+    if (*currentStatus == Status::LOCALLY_UNTRACKED && searchForAndAssign(ident) == Status::LOCALLY_UNTRACKED && (action == Action::MOVE_TO_LOCAL || action == Action::MOVE_TO_REPO))
         throw UserFileErr("Attempted to move untracked file.", UserFileErr::MOVE_ON_UNTRACKED);
 
     // If attempted action already matches status
     if ((*currentStatus == Status::IN_REPO && action == Action::MOVE_TO_REPO ) || (*currentStatus == Status::IN_LOCAL && action == Action::MOVE_TO_LOCAL))
         return;
 
-    if (action == Action::MOVE_TO_REPO) {
+    switch (action) {
+    case Action::MOVE_TO_REPO:
         fsys::rename(ManifestManip::dirAndNameOf(ident), ManifestManip::fileNameOf(ident));
         getStatusMutable(ident) = Status::IN_REPO;
-    }
-    else { // Same as "elif (action == Action::MOVE_TO_LOCAL) {"
+        break;
+
+    case Action::MOVE_TO_LOCAL:
         fsys::rename(ManifestManip::fileNameOf(ident), ManifestManip::dirAndNameOf(ident));
         getStatusMutable(ident) = Status::IN_LOCAL;
+        break;
+
+    case Action::UNTRACK:
+        switch(*currentStatus) {
+        default:
+            break;
+
+        case Status::IN_REPO:
+            takeAction(ident, Action::MOVE_TO_LOCAL);
+            break;
+
+        case Status::LOCALLY_UNTRACKED:
+            fsys::remove(ManifestManip::fileNameOf(ident));
+            break;
+        }
+
+        ManifestManip::removeFileElement(ident);
+        removeFromArr(ident);
     }
 }
 
@@ -123,4 +149,8 @@ bool UserFileControl::areAnyNotStatus(Status checkAgainst) {
             return true;
 
     return false;
+}
+
+void UserFileControl::removeFile(std::string_view fileName) {
+    fsys::remove(fileName);
 }

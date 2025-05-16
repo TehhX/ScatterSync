@@ -9,14 +9,18 @@ constexpr u_char autoSyncOnOpenMask { 0b1000 };
 constexpr u_char promptUnpushedMask { 0b0100 };
 constexpr u_char initGitOnOpenMask  { 0b0010 };
 
-void ManifestManip::openFile(std::string name) {
+void ManifestManip::openFile(std::string name, bool in) {
     if (fileStream.is_open())
         closeFile();
 
     if (!UserFileControl::exists(name))
         throw ManiManiErr("One of the manifest files does not exist.", ManiManiErr::FAIL_READ);
 
-    fileStream.open(name);
+    if (in)
+        fileStream.open(name, std::fstream::in | std::fstream::binary);
+    else
+        fileStream.open(name, std::fstream::out | std::fstream::trunc | std::fstream::binary);
+
     fileStream >> std::noskipws;
 
     if (fileStream.fail())
@@ -58,14 +62,14 @@ ManifestManip::UFITuple& ManifestManip::get(Ident ident) {
     UFIMap::iterator iter { userFileInfo.find(ident) };
 
     if (iter == userFileInfo.end())
-        throw ManiManiErr("Requested index does not exist.", ManiManiErr::FAIL_ACCESS);
+        throw ManiManiErr(std::string { "Requested ident " } + std::to_string(ident) + std::string { " does not exist." }, ManiManiErr::FAIL_ACCESS);
 
     else
         return iter->second;
 }
 
 void ManifestManip::readCloud() {
-    openCloud();
+    openCloud(true);
 
     MainFrame::settings.scrollSpeed = readIntegral(ByteCount::SCROLL_SPEED);
 
@@ -88,7 +92,7 @@ void ManifestManip::readCloud() {
 }
 
 void ManifestManip::readLocal() {
-    openLocal();
+    openLocal(true);
 
     while (fileStream.peek() != EOF) {
         Ident    ident { readIntegral(ByteCount::IDENT) };
@@ -113,7 +117,7 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 }
 
 void ManifestManip::writeCloud() {
-    openCloud();
+    openCloud(false);
 
     writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::SCROLL_SPEED);
 
@@ -138,7 +142,7 @@ void ManifestManip::writeCloud() {
 }
 
 void ManifestManip::writeLocal() {
-    openLocal();
+    openLocal(false);
 
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
         Ident ident { iter->first };
@@ -164,6 +168,12 @@ ManifestManip::Ident ManifestManip::createNewFileElement() {
     userFileInfo.insert({ newIdent, { "Generic Name Here", "local/path/", "fileName.txt" }});
 
     return newIdent;
+}
+
+void ManifestManip::removeFileElement(Ident ident) {
+    // Erase returns number of erased elements, if it erased nothing throw error
+    if (!userFileInfo.erase(ident))
+        throw ManiManiErr("Attempted to remove nonexistent UFI.", ManiManiErr::FAIL_IDENT);
 }
 
 std::string ManifestManip::dirAndNameOf(Ident ident) {

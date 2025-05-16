@@ -28,12 +28,13 @@ public:
         IN_LOCAL,
         IN_REPO,
         MISSING,
-        UNTRACKED
+        LOCALLY_UNTRACKED
     };
 
     enum class Action : u_char {
         MOVE_TO_REPO,
-        MOVE_TO_LOCAL
+        MOVE_TO_LOCAL,
+        UNTRACK
     };
 
 private:
@@ -44,6 +45,8 @@ private:
     static const Status& searchForAndAssign(ManifestManip::Ident ident);
 
     static Status& getStatusMutable(ManifestManip::Ident ident);
+
+    static void removeFromArr(ManifestManip::Ident ident);
 
 public:
     UserFileControl() = delete;
@@ -62,4 +65,8 @@ public:
 
     // Returns true if any status is not equal to checkAgainst. Really specific use for GitControl.
     static bool areAnyNotStatus(Status checkAgainst);
+
+    static void removeFile(std::string_view fileName);
+
+    static void createFile(std::string_view fileName);
 };

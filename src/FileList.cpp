@@ -35,7 +35,7 @@ void FileList::addFileItem(ManifestManip::Ident ident) {
 
     SetSize({ SS_GLOBALDEFS::WSX, SC(int, FileItem::itemHeight * (fileItems.size() + 1) + FileItem::itemMargin) });
 
-    fileItems.push_back(fileItem);
+    fileItems.insert({ ident, fileItem });
     maxScroll += FileItem::itemHeight;
 }
 
@@ -54,6 +54,6 @@ void FileList::scroll(wxMouseEvent& me) {
 }
 
 void FileList::submitAllUpdates() {
-    for (auto item : fileItems)
-        item->submitUpdate();
+    for (auto mapPair : fileItems)
+        mapPair.second->submitUpdate();
 }
