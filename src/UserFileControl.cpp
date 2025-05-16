@@ -56,15 +56,35 @@ const UserFileControl::Status& UserFileControl::getStatus(ManifestManip::Ident i
 }
 
 void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
-    if (getStatus(ident) == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
+    // Ptr instead of ref due to scope issues (can't initialize ref to assign later)
+    const Status* currentStatus;
+
+    // If the passed ident doesn't exist, try to register. If registering fails i.e. ident doesn't exist in UFIMap, rethrow error. Hopefully.
+    try {
+        currentStatus = &getStatus(ident);
+    }
+    catch (const UserFileErr& ufe) {
+        if (ufe.errCode == UserFileErr::INVALID_IDENT) {
+            try {
+                registerNew(ident);
+                takeAction(ident, action);
+            } catch (const ManiManiErr& mme) {
+                throw mme;
+            }
+        }
+        else
+            throw ufe;
+    }
+
+    if (*currentStatus == Status::MISSING && searchForAndAssign(ident) == Status::MISSING)
         throw UserFileErr("Couldn't find specified file.", UserFileErr::ACTION_ON_MISSING);
 
     // If untracked, and no change to track it, and move action
-    if (getStatus(ident) == Status::UNTRACKED && searchForAndAssign(ident) == Status::UNTRACKED && (action == Action::MOVE_TO_LOCAL || action == Action::MOVE_TO_REPO))
+    if (*currentStatus == Status::UNTRACKED && searchForAndAssign(ident) == Status::UNTRACKED && (action == Action::MOVE_TO_LOCAL || action == Action::MOVE_TO_REPO))
         throw UserFileErr("Attempted to move untracked file.", UserFileErr::MOVE_ON_UNTRACKED);
 
     // If attempted action already matches status
-    if ((getStatus(ident) == Status::IN_REPO && action == Action::MOVE_TO_REPO ) || (getStatus(ident) == Status::IN_LOCAL && action == Action::MOVE_TO_LOCAL))
+    if ((*currentStatus == Status::IN_REPO && action == Action::MOVE_TO_REPO ) || (*currentStatus == Status::IN_LOCAL && action == Action::MOVE_TO_LOCAL))
         return;
 
     if (action == Action::MOVE_TO_REPO) {
