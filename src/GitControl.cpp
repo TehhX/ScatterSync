@@ -54,7 +54,7 @@ void GitControl::push(bool warnNotInRepo) {
 }
 
 void GitControl::sync(bool warnNotInRepo) {
-    // pull();
+    pull();
     push(warnNotInRepo);
 }
 
