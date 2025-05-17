@@ -1,14 +1,14 @@
 # Scatter Sync
-Scatter Sync is a software for synchronising files across devices using GitHub. It allows for different local paths to be specified on different devices for the same given file.
+Scatter Sync is a software for synchronizing files across devices using GitHub. It allows for different local paths to be specified on different devices for the same given file.
 
 It is intended for small config, settings, or save files that may be scattered across a device. Keeping this type of file consistent across devices can be incredibly annoying.
 
 ## Build Instructions
-[CMake](https://cmake.org/) is required for building this program. If using VSCode, the [CMakeTools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools) extension is reccomended, but not required. [wxWidgets](https://wxwidgets.org/) is also required for building.
+[CMake](https://cmake.org/) is required for building this program. If using VSCode, the [CMakeTools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools) extension is recommended, but not required. [wxWidgets](https://wxwidgets.org/) is also required for building.
 
 After installing all prerequisites, simply build with CMake and run the resultant executable. If something goes wrong, refer to [Common Build Issues](#common-build-issues).
 
-Git will ignore everything inside `build/` as per the .gitignore file, which is the reccomended location for compiled files created with CMake.
+Git will ignore everything inside `build/` as per the .gitignore file, which is the recommended location for compiled files created with CMake.
 
 ## Downloading Scatter Sync Executables
 Refer to the [latest release](https://github.com/TehhX/ScatterSync/releases/latest) for a precompiled Linux or Windows64 executable with the latest version of Scatter Sync. They should work out of the box; just place them in the directory of your ScatterSync personal repository (the one used for file synchronization, not the one with the source code this README is inside of). From there, just follow the [End-User Instructions](#end-user-instructions).
@@ -38,7 +38,7 @@ This program uses data contained within binary (.bin) files that are structured 
 ## End-User Instructions
 These are instructions for actually using Scatter Sync, not building or compiling.
 
-* Ceate a new repository on GitHub (private reccomended)
+* Create a new repository on GitHub (private recommended)
 * Clone your repository locally wherever you want
 * If building yourself, place resultant executable, .dll files, both binary files and the .SAMPLEgitignore from SampleFiles/ into your personal repo (make sure to rename ".SAMPLEgitignore" to just ".gitignore" for Git to track your files properly)
 * If you're using precompiled binaries from releases, just extract the archive in its entirety into your personal repo, making sure that a subdirectory is NOT created by your archiving software, the executable and other files should be inside the repository directly
@@ -49,12 +49,16 @@ These are instructions for actually using Scatter Sync, not building or compilin
 * Make sure the local path contains the file name and extension as well e.g. `C:/Users/USERNAME/Desktop/file.txt`
 * Click "Move to Repo" to move all your tracked files to the repo, or "Move to Local" to move all your tracked files to their local paths
 * Click "Sync" to get updates to and from Git. Make sure that all files are inside the repo if you want to sync them
+* Click "Untrack" next to a file to untrack it. If it has a local path, the file will be moved there, but if it doesn't, it will be deleted
 * If you want to make changes to the repo itself, you can terminal cd into the repo and use Git as normal, or interface from GitHub.com itself
 * Repeat installing ScatterSync on another device
 * You can now specify a different local path for the same file you tracked on the first device and move or sync as normal
 
 ## Common Build Issues
-* When launching Scatter Sync on Windows, .dll files are reported missing: Make sure to move wxWidgets' .dll files next to ScatterSync.[exe, out].
+* When launching Scatter Sync on Windows, .dll files are reported missing: Make sure to move wxWidgets' .dll files next to the ScatterSync executable, inside your personal repository.
+
+## Reporting Bugs and Requesting New Features
+Use GitHub's issue system in this repo to report bugs and/or request features. If you are reporting a bug, give the steps to reproduce along with the expected and actual results of what you were trying to do when it bugs. If you're requesting a new feature, provide what the expected behavior of the new feature would be, and one or two use cases. Other than that, there are no guidelines for issue submissions.
 
 ## Sample Files Folder
 The `SampleFiles/` folder contains sample binary and .gitignore files for use with ScatterSync. The contained binary files are those which come with the precompiled binaries in [releases](https://github.com/TehhX/ScatterSync/releases). The `.SAMPLEgitignore` file contains the standard ignores for ScatterSync personal repositories, and also comes with releases. When using it, it would need to be renamed to `.gitignore`, but contains "SAMPLE" so that Git ignores it in *this* repo in particular.

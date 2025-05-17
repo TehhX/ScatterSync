@@ -2,11 +2,15 @@
 scatterSyncLocal.bin
 
 # Binary backup files
-*.bin.bak
+scatterSync*.bin.bak
 
-# Scatter Sync Application
+# Scatter Sync Windows executable
 ScatterSync.exe
-ScatterSync.out
 
-# wxWidgets Windows Libraries
+# Scatter Sync Linux exectuable
+ScatterSync.out
+ScatterSync.o
+ScatterSync
+
+# wxWidgets Windows dynamic link libraries
 wx*.dll

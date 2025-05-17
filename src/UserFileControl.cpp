@@ -71,13 +71,9 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
     }
     catch (const UserFileErr& ufe) {
         if (ufe.errCode == UserFileErr::INVALID_IDENT) {
-            try {
-                registerNew(ident);
-                takeAction(ident, action);
-                return;
-            } catch (const ManiManiErr& mme) {
-                throw;
-            }
+            registerNew(ident);
+            takeAction(ident, action);
+            return;
         }
         else
             throw;

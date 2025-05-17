@@ -29,33 +29,26 @@ public:
 // A class for reading, writing, and accessing static data from the manifest files.
 class ManifestManip {
 public:
-    using Ident    = u_short;
-    using GenName  = std::string;
-    using LocalDir = std::string;
-    using FileName = std::string;
+    using Ident    = u_short;     // Unique identifer
+    using GenName  = std::string; // Generic name
+    using LocalDir = std::string; // Local directory
+    using FileName = std::string; // File name and extension
 
-    using UFITuple = std::tuple<GenName, LocalDir, FileName>;
-    using UFIMap   = std::map<Ident, UFITuple>;
+    using UFITuple = std::tuple<GenName, LocalDir, FileName>; // A tuple containing the generic name, local directory and file name for a file
+    using UFIMap   = std::map<Ident, UFITuple>;               // A map between unique identifiers and their information
 
 private:
-    enum class ByteCount : u_char {
-        SCROLL_SPEED = 1,
-        IDENT        = 2
-    };
-
-    static constexpr u_char byteW { 8 }; // Bits/Byte width
+    static constexpr int byteW { 8 }; // Bits/Byte width
 
     // For each element, there is a generic name (0th), local directory (1st), and file name (2nd). Commonly referred to as UFI.
     static inline UFIMap userFileInfo {};
 
     static inline std::fstream fileStream {};
 
-    static void openFile(std::string name, bool in);
-    static inline void openCloud(bool in) { openFile("scatterSyncCloud.bin", in); }
-    static inline void openLocal(bool in) { openFile("scatterSyncLocal.bin", in); }
+    static void openFile(std::string name, bool fsType);
 
     static std::string readVariableLen();
-    static u_short readIntegral(ByteCount bytes);
+    static u_short readIntegral(int bytes);
 
     static UFITuple& get(Ident ident);
 
@@ -63,7 +56,7 @@ private:
     static void readLocal();
 
     static void writeVariableLen(std::string_view value);
-    static void writeIntegral(u_long value, ByteCount bytes);
+    static void writeIntegral(u_long value, int bytes);
 
     static void writeCloud();
     static void writeLocal();
@@ -71,7 +64,7 @@ private:
 public:
     ManifestManip() = delete; // Entirely static class
 
-    // Use the MANI_FOR_EACH(EXEC) macro instead of calling this directly.
+    // Use MANI_FOR_EACH(EXEC) instead of calling this directly.
     static void _forEach_(std::function<void(Ident ident)> func);
 
     static Ident createNewFileElement();

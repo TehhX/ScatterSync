@@ -5,23 +5,29 @@
 #include <MainFrame.hpp>
 #include <UserFileControl.hpp>
 
-constexpr u_char autoSyncOnOpenMask { 0b1000 };
-constexpr u_char promptUnpushedMask { 0b0100 };
-constexpr u_char initGitOnOpenMask  { 0b0010 };
+constexpr u_char autoSyncOnOpenMask { 0b100 };
+constexpr u_char promptUnpushedMask { 0b010 };
+constexpr u_char initGitOnOpenMask  { 0b001 };
 
-constexpr bool READ  { true };
+constexpr int SCROLL { 1 };
+constexpr int IDENT  { 2 };
+
+constexpr const char* const CLOUD { "scatterSyncCloud.bin" };
+constexpr const char* const LOCAL { "scatterSyncLocal.bin" };
+
+constexpr bool READ  {  true };
 constexpr bool WRITE { false };
 
-void ManifestManip::openFile(std::string name, bool in) {
+void ManifestManip::openFile(std::string name, bool fsType) {
     if (fileStream.is_open())
         closeFile();
 
     if (!UserFileControl::exists(name))
         throw ManiManiErr("One of the manifest files does not exist.", ManiManiErr::FAIL_READ);
 
-    if (in)
+    if (fsType == READ)
         fileStream.open(name, std::fstream::in | std::fstream::binary);
-    else
+    else //    == WRITE
         fileStream.open(name, std::fstream::out | std::fstream::trunc | std::fstream::binary);
 
     fileStream >> std::noskipws;
@@ -46,7 +52,7 @@ std::string ManifestManip::readVariableLen() {
     throw ManiManiErr("Reached end of file without closing string (Lacks null terminator).", ManiManiErr::FAIL_READ);
 }
 
-u_short ManifestManip::readIntegral(ByteCount bytes) {
+u_short ManifestManip::readIntegral(int bytes) {
     u_long value { 0 };
     u_char input { 0 };
 
@@ -62,7 +68,7 @@ u_short ManifestManip::readIntegral(ByteCount bytes) {
 }
 
 ManifestManip::UFITuple& ManifestManip::get(Ident ident) {
-    UFIMap::iterator iter { userFileInfo.find(ident) };
+    auto iter { userFileInfo.find(ident) };
 
     if (iter == userFileInfo.end())
         throw ManiManiErr(std::string { "Requested ident " } + std::to_string(ident) + std::string { " does not exist." }, ManiManiErr::FAIL_ACCESS);
@@ -72,9 +78,9 @@ ManifestManip::UFITuple& ManifestManip::get(Ident ident) {
 }
 
 void ManifestManip::readCloud() {
-    openCloud(READ);
+    openFile(CLOUD, READ);
 
-    MainFrame::settings.scrollSpeed = readIntegral(ByteCount::SCROLL_SPEED);
+    MainFrame::settings.scrollSpeed = readIntegral(SCROLL);
 
     { // These bools use the same byte, different bits
         char in;
@@ -86,7 +92,7 @@ void ManifestManip::readCloud() {
     }
 
     while (fileStream.peek() != EOF) {
-        Ident          id { readIntegral(ByteCount::IDENT) };
+        Ident          id { readIntegral(IDENT) };
         FileName fileName { readVariableLen() };
         GenName   genName { readVariableLen() };
 
@@ -95,10 +101,10 @@ void ManifestManip::readCloud() {
 }
 
 void ManifestManip::readLocal() {
-    openLocal(READ);
+    openFile(LOCAL, READ);
 
     while (fileStream.peek() != EOF) {
-        Ident    ident { readIntegral(ByteCount::IDENT) };
+        Ident    ident { readIntegral(IDENT) };
         LocalDir dir   { readVariableLen() };
 
         localDirOf(ident) = dir;
@@ -112,7 +118,7 @@ void ManifestManip::writeVariableLen(std::string_view value) {
     fileStream << '\0';
 }
 
-void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
+void ManifestManip::writeIntegral(u_long value, int bytes) {
     fileStream << SC(u_char, value & 0x00'00'00'FF);
 
     if (SC(u_char, bytes) > 1)
@@ -120,9 +126,9 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 }
 
 void ManifestManip::writeCloud() {
-    openCloud(WRITE);
+    openFile(CLOUD, WRITE);
 
-    writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::SCROLL_SPEED);
+    writeIntegral(MainFrame::settings.scrollSpeed, SCROLL);
 
     { // These bools use the same byte, different bits
         auto out { SC(u_char,
@@ -137,7 +143,7 @@ void ManifestManip::writeCloud() {
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
         Ident ident { iter->first };
 
-        writeIntegral(ident, ByteCount::IDENT);
+        writeIntegral(ident, IDENT);
         writeVariableLen(fileNameOf(ident));
         writeVariableLen(genericNameOf(ident));
         UserFileControl::registerNew(ident);
@@ -145,12 +151,12 @@ void ManifestManip::writeCloud() {
 }
 
 void ManifestManip::writeLocal() {
-    openLocal(WRITE);
+    openFile(LOCAL, WRITE);
 
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
         Ident ident { iter->first };
 
-        writeIntegral(ident, ByteCount::IDENT);
+        writeIntegral(ident, IDENT);
         writeVariableLen(localDirOf(ident));
     }
 }
