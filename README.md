@@ -46,11 +46,11 @@ These are instructions for actually using Scatter Sync, not building or compilin
 * Auto-init on open is checked by default, but if you turn it off you have to click "Init" after launching
 * Click "Settings" to edit different settings
 * To add a new file to be tracked, click "Track New File", and input its generic name for all devices to refer to it as, and local path for the device you're currently on to use
-* Make sure the local path contains the file name and extension as well e.g. `C:/Users/USERNAME/Desktop/file.txt`
+* Make sure the local path does NOT contain the file name and/or extension e.g. `C:/Users/USERNAME/Desktop/`
 * Click "Move to Repo" to move all your tracked files to the repo, or "Move to Local" to move all your tracked files to their local paths
 * Click "Sync" to get updates to and from Git. Make sure that all files are inside the repo if you want to sync them
 * Click "Untrack" next to a file to untrack it. If it has a local path, the file will be moved there, but if it doesn't, it will be deleted
-* If you want to make changes to the repo itself, you can terminal cd into the repo and use Git as normal, or interface from GitHub.com itself
+* If you want to make changes to the repo itself, you can terminal cd into the repo and use Git as normal, or interface from GitHub.com itself as with any other repository
 * Repeat installing ScatterSync on another device
 * You can now specify a different local path for the same file you tracked on the first device and move or sync as normal
 
