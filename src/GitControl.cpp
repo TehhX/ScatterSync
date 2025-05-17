@@ -69,7 +69,7 @@ void GitControl::setEdited() {
 void GitControl::resetChanges() {
     if (!isActive)
         throw GitCtrlErr("GitControl is not initialized.", GitCtrlErr::BAD_INIT);
-    
+
     if (system("git restore --staged .") || system("git restore ."))
         throw GitCtrlErr("Couldn't reset changes.", GitCtrlErr::FAIL_MANIP);
 }

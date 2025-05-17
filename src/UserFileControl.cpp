@@ -74,6 +74,7 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
             try {
                 registerNew(ident);
                 takeAction(ident, action);
+                return;
             } catch (const ManiManiErr& mme) {
                 throw;
             }

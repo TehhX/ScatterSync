@@ -23,20 +23,19 @@ FileList::FileList(wxWindow* parent)
 }
 
 void FileList::intake() {
+    for (auto& pair : fileItems)
+        pair.second->Destroy();
+
     fileItems.clear();
     MANI_FOR_EACH(addFileItem(ident);)
 }
 
 void FileList::addFileItem(ManifestManip::Ident ident) {
-    auto fileItem = new FileItem { this, ident };
-    fileItem->SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
-    fileItem->SetPosition({ 0, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
-    fileItem->Show();
+    fileItems.insert({ ident, new FileItem { this, ident } });
+    fileItems.find(ident)->second->SetPosition({ 0, SC(int, FileItem::itemHeight * (fileItems.size() - 1) + FileItem::itemMargin) });
 
-    SetSize({ SS_GLOBALDEFS::WSX, SC(int, FileItem::itemHeight * (fileItems.size() + 1) + FileItem::itemMargin) });
-
-    fileItems.insert({ ident, fileItem });
     maxScroll += FileItem::itemHeight;
+    SetSize({ SS_GLOBALDEFS::WSX, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
 }
 
 void FileList::scroll(wxMouseEvent& me) {

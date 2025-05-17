@@ -9,6 +9,9 @@ constexpr u_char autoSyncOnOpenMask { 0b1000 };
 constexpr u_char promptUnpushedMask { 0b0100 };
 constexpr u_char initGitOnOpenMask  { 0b0010 };
 
+constexpr bool READ  { true };
+constexpr bool WRITE { false };
+
 void ManifestManip::openFile(std::string name, bool in) {
     if (fileStream.is_open())
         closeFile();
@@ -69,7 +72,7 @@ ManifestManip::UFITuple& ManifestManip::get(Ident ident) {
 }
 
 void ManifestManip::readCloud() {
-    openCloud(true);
+    openCloud(READ);
 
     MainFrame::settings.scrollSpeed = readIntegral(ByteCount::SCROLL_SPEED);
 
@@ -92,7 +95,7 @@ void ManifestManip::readCloud() {
 }
 
 void ManifestManip::readLocal() {
-    openLocal(true);
+    openLocal(READ);
 
     while (fileStream.peek() != EOF) {
         Ident    ident { readIntegral(ByteCount::IDENT) };
@@ -117,7 +120,7 @@ void ManifestManip::writeIntegral(u_long value, ByteCount bytes) {
 }
 
 void ManifestManip::writeCloud() {
-    openCloud(false);
+    openCloud(WRITE);
 
     writeIntegral(MainFrame::settings.scrollSpeed, ByteCount::SCROLL_SPEED);
 
@@ -142,7 +145,7 @@ void ManifestManip::writeCloud() {
 }
 
 void ManifestManip::writeLocal() {
-    openLocal(false);
+    openLocal(WRITE);
 
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
         Ident ident { iter->first };
@@ -163,9 +166,10 @@ ManifestManip::Ident ManifestManip::createNewFileElement() {
     if (userFileInfo.size() > 0)
         newIdent = SC(Ident, (std::prev(userFileInfo.end())->first) + 1);
     else
-        newIdent = 1;
+        newIdent = 0;
 
     userFileInfo.insert({ newIdent, { "Generic Name Here", "local/path/", "fileName.txt" }});
+    UserFileControl::registerNew(newIdent);
 
     return newIdent;
 }

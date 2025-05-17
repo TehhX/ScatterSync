@@ -7,7 +7,6 @@
 #include <string>
 
 class FileItem : public wxPanel {
-    wxWindow* const parent;
     wxTextCtrl* genNameField;
     wxTextCtrl* dirField;
     wxTextCtrl* nameField;
