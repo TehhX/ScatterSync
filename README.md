@@ -46,12 +46,13 @@ These are instructions for actually using Scatter Sync, not building or compilin
 * Auto-init on open is checked by default, but if you turn it off you have to click "Init" after launching
 * Click "Settings" to edit different settings
 * To add a new file to be tracked, click "Track New File", and input its generic name for all devices to refer to it as, and local path for the device you're currently on to use
-* Make sure the local path does NOT contain the file name and/or extension e.g. `C:/Users/USERNAME/Desktop/`
+* Make sure the local path does NOT contain the file name and/or extension, correct e.g. `C:/Users/USERNAME/Desktop/`
 * Click "Move to Repo" to move all your tracked files to the repo, or "Move to Local" to move all your tracked files to their local paths
 * Click "Sync" to get updates to and from Git. Make sure that all files are inside the repo if you want to sync them
 * Click "Untrack" next to a file to untrack it. If it has a local path, the file will be moved there, but if it doesn't, it will be deleted
 * If you want to make changes to the repo itself, you can terminal cd into the repo and use Git as normal, or interface from GitHub.com itself as with any other repository
 * Repeat installing ScatterSync on another device
+* **IMPORTANT NOTE:** Delete the default scatterSyncCloud.bin file on the new device before launching ScatterSync for the first time, as Git will try to overwrite the tracked Cloud.bin file with the defualt one erasing the manifest file in the process. If you did this accidentally, you can use Git in the terminal to reset to your previous commit where it had not been overwritten yet. See the [Git website](https://git-scm.com/) for more information on using Git
 * You can now specify a different local path for the same file you tracked on the first device and move or sync as normal
 
 ## Common Build Issues
