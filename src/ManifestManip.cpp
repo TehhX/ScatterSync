@@ -107,7 +107,13 @@ void ManifestManip::readLocal() {
         Ident    ident { readIntegral(IDENT) };
         LocalDir dir   { readVariableLen() };
 
-        localDirOf(ident) = dir;
+        // If cloud bin has changed and local hasn't, idents will be mismatched. This checks for it, and simply skips the file if it doesn't exist in cloud.bin.
+        try {
+            localDirOf(ident) = dir;
+        } catch (const ManiManiErr& mme) {
+            if (mme.errCode != ManiManiErr::FAIL_ACCESS)
+                throw;
+        }
     }
 }
 
