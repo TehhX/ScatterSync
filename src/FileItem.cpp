@@ -2,6 +2,8 @@
 
 #include <ScatterSyncDefs.hpp>
 
+#include <algorithm>
+
 #include <ManifestManip.hpp>
 #include <UserFileControl.hpp>
 #include <FileList.hpp>
@@ -23,28 +25,19 @@ FileItem::FileItem(wxWindow* parent, ManifestManip::Ident elementIdent)
     removeBttn->Bind(wxEVT_BUTTON, &FileItem::removeEvent, this);
 
     Show();
-
-    
 }
 
 void FileItem::submitUpdate() {
-    std::string directory { dirField->GetValue() };
-    
-    // Replace all occurences of '\' with '/'.
-    bool popped { false };
-    for (char& character : directory) {
-        if (character == '\\') {
-            character = '/';
+    if (dirField->GetValue().length() > 0) {
+        std::string directory { dirField->GetValue() };
 
-            if (!popped) {
-                popped = true;
-                POPUP("Use '/' instead of '\\' in file directory field.")
-            }
-        }
+        std::replace(directory.begin(), directory.end(), '\\', '/');
+
+        if (directory[directory.length() - 1] != '/')
+            directory.append({ '/' });
+
+        dirField->SetValue(directory);
     }
-
-    if (directory.length() > 0 && directory[directory.length() - 1] != '/')
-        dirField->SetValue(directory.append({ '/' }));
 
     ManifestManip::genericNameOf(elementIdent) = genNameField->GetValue();
     ManifestManip::localDirOf(elementIdent)    = dirField->GetValue();
