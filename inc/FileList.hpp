@@ -1,17 +1,18 @@
 #pragma once
 
+#include <ScatterSyncDefs.hpp>
+#include <ManifestManip.hpp>
+#include <FileItem.hpp>
+
 #include <map>
 #include <string>
 
-#include <ScatterSyncDefs.hpp>
-
-#include <ManifestManip.hpp>
-#include <FileItem.hpp>
+#include <wx/panel.h>
 
 class FileList : public wxPanel {
     std::map<ManifestManip::Ident, FileItem*> fileItems;
 
-    int maxScroll { FileItem::itemMargin - SS_GLOBALDEFS::WSY };
+    int maxScroll { FileItem::itemMargin - WINDOW_SIZE_Y };
 
     void scroll(wxMouseEvent& me);
 

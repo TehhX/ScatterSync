@@ -1,12 +1,11 @@
 #include <FileItem.hpp>
 
 #include <ScatterSyncDefs.hpp>
-
-#include <algorithm>
-
 #include <ManifestManip.hpp>
 #include <UserFileControl.hpp>
 #include <FileList.hpp>
+
+#include <algorithm>
 
 void FileItem::removeEvent(wxCommandEvent& WXUNUSED(event)) {
     UserFileControl::takeAction(elementIdent, UserFileControl::Action::UNTRACK);
@@ -14,14 +13,14 @@ void FileItem::removeEvent(wxCommandEvent& WXUNUSED(event)) {
 }
 
 FileItem::FileItem(wxWindow* parent, ManifestManip::Ident elementIdent)
-: wxPanel { parent, wxID_ANY, wxDefaultPosition, { SS_GLOBALDEFS::WSX, itemHeight } }, elementIdent { elementIdent } {
+: wxPanel { parent, wxID_ANY, wxDefaultPosition, { WINDOW_SIZE_X, itemHeight } }, elementIdent { elementIdent } {
     SetTransparent(true);
 
     genNameField = new wxTextCtrl { this, wxID_ANY, ManifestManip::genericNameOf(elementIdent), { 0, 0 }, itemSize };
     dirField     = new wxTextCtrl { this, wxID_ANY, ManifestManip::localDirOf(elementIdent), { itemWidth, 0 }, itemSize };
     nameField    = new wxTextCtrl { this, wxID_ANY, ManifestManip::fileNameOf(elementIdent), { 2 * itemWidth, 0 }, itemSize };
 
-    removeBttn = new wxButton { this, wxID_ANY, "Untrack", { 3 * itemWidth, 0 }, { SS_GLOBALDEFS::WSX - 3 * itemWidth, -1 } };
+    removeBttn = new wxButton { this, wxID_ANY, "Untrack", { 3 * itemWidth, 0 }, { WINDOW_SIZE_X - 3 * itemWidth, -1 } };
     removeBttn->Bind(wxEVT_BUTTON, &FileItem::removeEvent, this);
 
     Show();

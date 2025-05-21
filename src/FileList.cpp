@@ -1,7 +1,6 @@
 #include <FileList.hpp>
 
 #include <ScatterSyncDefs.hpp>
-
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
@@ -12,9 +11,9 @@ void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
 }
 
 FileList::FileList(wxWindow* parent)
-: wxPanel { parent, wxID_ANY, { 0, topMargin }, { SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY - topMargin } } {
+: wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
     Hide();
-    SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
+    SetBackgroundColour(WXC_DGREY);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     intake();
@@ -35,7 +34,7 @@ void FileList::addFileItem(ManifestManip::Ident ident) {
     fileItems.find(ident)->second->SetPosition({ 0, SC(int, FileItem::itemHeight * (fileItems.size() - 1) + FileItem::itemMargin) });
 
     maxScroll += FileItem::itemHeight;
-    SetSize({ SS_GLOBALDEFS::WSX, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
+    SetSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
 }
 
 void FileList::scroll(wxMouseEvent& me) {

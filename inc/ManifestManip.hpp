@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ScatterSyncDefs.hpp>
+#include <ScatterSyncErr.hpp>
 
 #include <string>
 #include <fstream>

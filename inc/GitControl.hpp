@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ScatterSyncDefs.hpp>
+#include <ScatterSyncErr.hpp>
 
-#include <stdexcept>
 #include <string>
 
 class GitCtrlErr : public ScatterSyncErr {

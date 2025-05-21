@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ScatterSyncDefs.hpp>
-
 #include <ManifestManip.hpp>
 
 #include <string>

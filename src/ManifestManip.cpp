@@ -1,9 +1,9 @@
 #include <ManifestManip.hpp>
 
-#include <cstdint>
-
 #include <MainFrame.hpp>
 #include <UserFileControl.hpp>
+
+#include <cstdint>
 
 constexpr u_char autoSyncOnOpenMask { 0b100 };
 constexpr u_char promptUnpushedMask { 0b010 };

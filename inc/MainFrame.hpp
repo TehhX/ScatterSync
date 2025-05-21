@@ -4,6 +4,10 @@
 #include <GitControl.hpp>
 #include <SettingsFrame.hpp>
 #include <UserFileControl.hpp>
+#include <Popups.hpp>
+
+#include <wx/frame.h>
+#include <wx/button.h>
 
 // UserFileControl event functions to bind buttons to
 #define UFC_EVENT_FUNC(ACTION) \

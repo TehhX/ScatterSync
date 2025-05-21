@@ -1,45 +1,21 @@
 #pragma once
 
-#include <wx/wx.h>
-
-#include <stdexcept>
-
-// Displays a simple popup window with MSSG as the message and no further user input.
-#define POPUP(MSSG) \
-    { auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxOK } }; \
-    mssgDialog->ShowModal(); }
-
-// Displays a yes/no popup window with MSSG as the message, executes EXEC if yes, nothing if no.
-#define YN_POP(MSSG, EXEC) \
-    { auto mssgDialog { new wxMessageDialog { nullptr, MSSG, wxMessageBoxCaptionStr, wxSTAY_ON_TOP | wxICON_WARNING | wxYES | wxNO } }; \
-    if (mssgDialog->ShowModal() == wxID_YES) { \
-        EXEC \
-    } }
-
-#define IGN_ERRS(EXEC) try { EXEC } catch(...) {}
+// Lazy macros
 #define SC(T, VALUE) static_cast<T>(VALUE)
 
+// Typedefs
 using u_char  = unsigned char;
 using u_long  = unsigned long;
 using u_llong = unsigned long long;
+using u_short = unsigned short;
 
-using u_short  = unsigned short;
+// Window size constants
+#define WINDOW_SIZE_X 800
+#define WINDOW_SIZE_Y 600
+#define WINDOW_SIZE { WINDOW_SIZE_X, WINDOW_SIZE_Y }
 
-// Contains specific definitions for Scatter Sync.
-namespace SS_GLOBALDEFS {
-    inline constexpr int WSX { 800 }; // Window size in the X axis, or width.
-    inline constexpr int WSY { 600 }; // Window size in the Y axis, or height.
-
-    inline static const wxColor BLACK { 0, 0, 0 };
-    inline static const wxColor DARK_GREY { 18, 18, 18 };
-    inline static const wxColor LIGHT_GREY { 64, 64, 64 };
-    inline static const wxColor WHITE { 255, 255, 255 };
-}
-
-class ScatterSyncErr : public std::runtime_error {
-public:
-    const u_char errCode;
-
-    inline ScatterSyncErr(const std::string& message, u_char errCode)
-    : std::runtime_error { message }, errCode { errCode } {}
-};
+// wxColor constants
+#define WXC_BLACK {   0,   0,   0 }
+#define WXC_DGREY {  18,  18,  18 }
+#define WXC_LGREY {  64,  64,  64 }
+#define WXC_WHITE { 255, 255, 255 }

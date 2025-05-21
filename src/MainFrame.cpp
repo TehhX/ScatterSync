@@ -3,6 +3,9 @@
 #include <ScatterSyncDefs.hpp>
 #include <ManifestManip.hpp>
 #include <GitControl.hpp>
+#include <Popups.hpp>
+
+#include <iostream>
 
 void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
@@ -84,8 +87,8 @@ void MainFrame::initEvent(wxCommandEvent& WXUNUSED(event)) {
 
 MainFrame::MainFrame()
 : wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
-    SetClientSize(SS_GLOBALDEFS::WSX, SS_GLOBALDEFS::WSY);
-    SetBackgroundColour(SS_GLOBALDEFS::DARK_GREY);
+    SetClientSize(WINDOW_SIZE);
+    SetBackgroundColour(WXC_DGREY);
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 

@@ -3,6 +3,8 @@ Scatter Sync is a software for synchronizing files across devices using GitHub. 
 
 It is intended for small config, settings, or save files that may be scattered across a device. Keeping this type of file consistent across devices can be incredibly annoying.
 
+> *TODO: Table of contents*
+
 ## Build Instructions
 [CMake](https://cmake.org/) is required for building this program. If using VSCode, the [CMakeTools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools) extension is recommended, but not required. [wxWidgets](https://wxwidgets.org/) is also required for building.
 
@@ -79,3 +81,7 @@ The `SampleFiles/` folder contains sample binary and .gitignore files for use wi
 `SampleFiles/scatterSyncLocal.bin` contains the following default values:
 * No file identifiers
 * No local paths
+
+## Development Instructions
+Instructions for development can be found in the following documents:
+* [Style Guide](STYLEGUIDE.md)

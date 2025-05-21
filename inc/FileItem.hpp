@@ -1,10 +1,13 @@
 #pragma once
 
 #include <ScatterSyncDefs.hpp>
-
 #include <ManifestManip.hpp>
 
 #include <string>
+
+#include <wx/panel.h>
+#include <wx/textctrl.h>
+#include <wx/button.h>
 
 class FileItem : public wxPanel {
     wxTextCtrl* genNameField;
@@ -21,7 +24,7 @@ public:
     const ManifestManip::Ident elementIdent;
 
     static constexpr int removeWidth { 100 };
-    static constexpr int itemWidth  { SS_GLOBALDEFS::WSX / 3 - removeWidth / 3 };
+    static constexpr int itemWidth  { WINDOW_SIZE_X / 3 - removeWidth / 3 };
     static constexpr int itemHeight { 50 };
     const wxSize itemSize { itemWidth, itemHeight };
 
