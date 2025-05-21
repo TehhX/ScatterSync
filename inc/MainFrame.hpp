@@ -9,19 +9,10 @@
 #define UFC_EVENT_FUNC(ACTION) \
     inline void ACTION##Event(wxCommandEvent& event) { \
         try { \
-            gCtrl.setEdited(); \
             fileList->submitAllUpdates(); \
             UserFileControl::takeActionsForEach(UserFileControl::Action::ACTION); \
-        } catch (const UserFileErr& ufe) { \
-            POPUP(ufe.what()) \
-        } catch(const GitCtrlErr& gce) { \
-            YN_POP(std::string { gce.what() } + std::string { " Proceed anyway?" }, \
-                try { \
-                    UserFileControl::takeActionsForEach(UserFileControl::Action::ACTION); \
-                } catch (const UserFileErr& ufe) { \
-                    POPUP(ufe.what()) \
-                } \
-            ) \
+        } catch (const ScatterSyncErr& sse) { \
+            POPUP(sse.what()) \
         } \
     }
 
