@@ -85,6 +85,25 @@ void MainFrame::initEvent(wxCommandEvent& WXUNUSED(event)) {
     }
 }
 
+void MainFrame::moveAllRepoEvent(wxCommandEvent& WXUNUSED(event)) {
+    try {
+        fileList->submitAllUpdates();
+        UserFileControl::takeActionsForEach(UserFileControl::Action::MOVE_TO_REPO);
+        gCtrl.setEdited();
+    } catch (const ScatterSyncErr& sse) {
+        POPUP(sse.what())
+    }
+}
+
+void MainFrame::moveAllLocalEvent(wxCommandEvent& WXUNUSED(event)) {
+    try {
+        fileList->submitAllUpdates();
+        UserFileControl::takeActionsForEach(UserFileControl::Action::MOVE_TO_LOCAL);
+    } catch (const ScatterSyncErr& sse) {
+        POPUP(sse.what())
+    }
+}
+
 MainFrame::MainFrame()
 : wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
     SetClientSize(WINDOW_SIZE);
@@ -105,10 +124,10 @@ MainFrame::MainFrame()
     settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEvent, this);
 
     moveRepoBttn = new wxButton { this, wxID_ANY, "Move All to Repo", getButtonOffset(settBttn) };
-    moveRepoBttn->Bind(wxEVT_BUTTON, &MainFrame::MOVE_TO_REPOEvent, this);
+    moveRepoBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllRepoEvent, this);
 
     moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn) };
-    moveLocalBttn->Bind(wxEVT_BUTTON, &MainFrame::MOVE_TO_LOCALEvent, this);
+    moveLocalBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllLocalEvent, this);
 
     trackNewBttn = new wxButton { this, wxID_ANY, "Track New File", getButtonOffset(moveLocalBttn) };
     trackNewBttn->Bind(wxEVT_BUTTON, &FileList::createNewFile, fileList);

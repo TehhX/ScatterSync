@@ -9,17 +9,6 @@
 #include <wx/frame.h>
 #include <wx/button.h>
 
-// UserFileControl event functions to bind buttons to
-#define UFC_EVENT_FUNC(ACTION) \
-    inline void ACTION##Event(wxCommandEvent& event) { \
-        try { \
-            fileList->submitAllUpdates(); \
-            UserFileControl::takeActionsForEach(UserFileControl::Action::ACTION); \
-        } catch (const ScatterSyncErr& sse) { \
-            POPUP(sse.what()) \
-        } \
-    }
-
 class MainFrame : public wxFrame {
     GitControl gCtrl;
 
@@ -49,8 +38,9 @@ class MainFrame : public wxFrame {
     void initEvent(wxCommandEvent&);
     inline void initEvent() { wxCommandEvent ev {}; initEvent(ev); }
 
-    UFC_EVENT_FUNC(MOVE_TO_REPO)
-    UFC_EVENT_FUNC(MOVE_TO_LOCAL)
+    void moveAllRepoEvent(wxCommandEvent&);
+
+    void moveAllLocalEvent(wxCommandEvent&);
 
 public:
     struct Settings {
