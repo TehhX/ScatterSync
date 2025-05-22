@@ -102,7 +102,7 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
         break;
 
     case Action::UNTRACK:
-        switch(*currentStatus) {
+        switch (*currentStatus) {
         default:
             break;
 

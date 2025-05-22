@@ -13,7 +13,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
             standardExit(ce);
         }
         catch (const GitCtrlErr& gce)   {
-            switch(gce.errCode) {
+            switch (gce.errCode) {
             default:
                 std::cerr << "Unknown GCE error code.\n";
                 throw;
