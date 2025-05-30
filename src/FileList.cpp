@@ -4,7 +4,7 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
-#define resetSize SetClientSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) })
+#define resetSize() SetClientSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) })
 
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
@@ -39,7 +39,7 @@ void FileList::removeFileItem(ManifestManip::Ident ident) {
     intake();
 
     maxScroll -= FileItem::itemHeight;
-    resetSize;
+    resetSize();
 
     scrollBoundsCheck();
 }
@@ -49,7 +49,7 @@ void FileList::addFileItem(ManifestManip::Ident ident) {
     fileItems.find(ident)->second->SetPosition({ 0, SC(int, FileItem::itemHeight * (fileItems.size() - 1) + FileItem::itemMargin) });
 
     maxScroll += FileItem::itemHeight;
-    resetSize;
+    resetSize();
 
     scrollBoundsCheck();
 }
