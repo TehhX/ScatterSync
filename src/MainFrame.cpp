@@ -118,6 +118,9 @@ MainFrame::MainFrame()
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 
+    // Prevents MainFrame from resizing things and being annoying. Does not have any practical purpose besides that.
+    new wxPanel { this, wxID_ANY, { 0, 0 }, { 0, 0 } };
+
 // Create special panels
     settingsFrame = new SettingsFrame { this };
     fileList      = new FileList      { this };
