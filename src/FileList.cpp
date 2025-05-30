@@ -15,14 +15,13 @@ FileList::FileList(wxWindow* parent)
     intake();
 
     Show();
-
-    std::cerr << GetPosition().y << '\n';
 }
 
 void FileList::intake() {
     for (auto& pair : fileItems)
         pair.second->Destroy();
 
+    maxScroll = maxScrollDefault;
     fileItems.clear();
 
     maniManiForEach(addFileItem(ident);)
@@ -38,7 +37,6 @@ void FileList::removeFileItem(ManifestManip::Ident ident) {
     UserFileControl::takeAction(ident, UserFileControl::Action::UNTRACK);
     intake();
 
-    maxScroll -= FileItem::itemHeight;
     resetSize();
 
     scrollBoundsCheck();
@@ -64,6 +62,10 @@ void FileList::scroll(wxMouseEvent& me) {
 }
 
 void FileList::scrollBoundsCheck() {
+    // Are enough elements to check bounds?
+    if (FileItem::itemMargin + FileItem::itemHeight * fileItems.size() <= WINDOW_SIZE_Y - topMargin)
+        return SetPosition({ 0, topMargin });
+
     if (GetPosition().y > topMargin)
         SetPosition({ 0, topMargin });
 

@@ -12,7 +12,8 @@
 class FileList : public wxPanel {
     std::map<ManifestManip::Ident, FileItem*> fileItems;
 
-    int maxScroll { FileItem::itemMargin - WINDOW_SIZE_Y };
+    static constexpr int maxScrollDefault { FileItem::itemMargin - WINDOW_SIZE_Y };
+    int maxScroll { maxScrollDefault };
 
     void scroll(wxMouseEvent& me);
 
