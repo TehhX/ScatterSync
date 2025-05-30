@@ -23,6 +23,7 @@ class MainFrame : public wxFrame {
 
     FileList* fileList;
 
+    // Gets button offset relative to passed previous button. If none/nullptr passed, use starting position
     static inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { (prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10), 15 }; }
 
     void closeWinEvent(wxCloseEvent&);

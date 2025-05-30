@@ -11,8 +11,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
         try {
             standardExit(ce);
-        }
-        catch (const GitCtrlErr& gce)   {
+        } catch (const GitCtrlErr& gce)   {
             switch (gce.errCode) {
             default:
                 std::cerr << "Unknown GCE error code.\n";
@@ -29,8 +28,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
                     standardExit(ce, false);
             }
         }
-    }
-    catch (const ManiManiErr& mme) {
+    } catch (const ManiManiErr& mme) {
         switch (mme.errCode) {
         default:
             std::cerr << "Unknown MME error code.\n";
@@ -111,30 +109,29 @@ MainFrame::MainFrame()
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 
-    fileList      = new FileList      { this };
+// Create buttons
+    initBttn      = new wxButton { this, wxID_ANY, "Init",                    getButtonOffset()              };
+    syncBttn      = new wxButton { this, wxID_ANY, "Sync",                    getButtonOffset(initBttn)      };
+    settBttn      = new wxButton { this, wxID_ANY, "Settings",                getButtonOffset(syncBttn)      };
+    moveRepoBttn  = new wxButton { this, wxID_ANY, "Move All to Repo",        getButtonOffset(settBttn)      };
+    moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn)  };
+    trackNewBttn  = new wxButton { this, wxID_ANY, "Track New File",          getButtonOffset(moveLocalBttn) };
+
+// Create special panels
     settingsFrame = new SettingsFrame { this };
+    fileList      = new FileList      { this };
 
-    initBttn = new wxButton { this, wxID_ANY, "Init", getButtonOffset() };
-    initBttn->Bind(wxEVT_BUTTON, &MainFrame::initEvent, this);
-
-    syncBttn = new wxButton { this, wxID_ANY, "Sync", getButtonOffset(initBttn) };
-    syncBttn->Bind(wxEVT_BUTTON, &MainFrame::syncEvent, this);
-
-    settBttn = new wxButton { this, wxID_ANY, "Settings", getButtonOffset(syncBttn) };
-    settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEvent, this);
-
-    moveRepoBttn = new wxButton { this, wxID_ANY, "Move All to Repo", getButtonOffset(settBttn) };
-    moveRepoBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllRepoEvent, this);
-
-    moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn) };
+// Bind buttons
+    initBttn     ->Bind(wxEVT_BUTTON, &MainFrame::initEvent,         this);
+    syncBttn     ->Bind(wxEVT_BUTTON, &MainFrame::syncEvent,         this);
+    settBttn     ->Bind(wxEVT_BUTTON, &MainFrame::settEvent,         this);
+    moveRepoBttn ->Bind(wxEVT_BUTTON, &MainFrame::moveAllRepoEvent,  this);
     moveLocalBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllLocalEvent, this);
+    trackNewBttn ->Bind(wxEVT_BUTTON, &FileList::createNewFile,      fileList);
 
-    trackNewBttn = new wxButton { this, wxID_ANY, "Track New File", getButtonOffset(moveLocalBttn) };
-    trackNewBttn->Bind(wxEVT_BUTTON, &FileList::createNewFile, fileList);
-
+// On-open tasks
     if (settings.initGitOnOpen) {
         initEvent();
-
         // Can't auto sync if not initialized on open
         if (settings.autoSyncOnOpen)
             syncEvent();
