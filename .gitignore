@@ -46,3 +46,6 @@ build/
 
 # Testing environment for Scatter Sync
 TestingEnvironment/
+
+# Ignore merge conflict related files
+*.orig

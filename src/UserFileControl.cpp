@@ -48,7 +48,7 @@ void UserFileControl::init() {
 
     bool anyMissing { false };
 
-    MANI_FOR_EACH(searchForAndAssign(ident);)
+    maniManiForEach(searchForAndAssign(ident);)
 
     active = true;
 
@@ -121,7 +121,7 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
 }
 
 void UserFileControl::takeActionsForEach(Action action) {
-    MANI_FOR_EACH(
+    maniManiForEach(
         try {
             takeAction(ident, action);
         } catch (const UserFileErr& ufe) {
@@ -141,8 +141,8 @@ const UserFileControl::Status& UserFileControl::registerNew(ManifestManip::Ident
 }
 
 bool UserFileControl::areAnyStatus(Status checkAgainst) {
-    for (auto iter { statusArr.begin() }; iter != statusArr.end(); iter++)
-        if (iter->second == checkAgainst)
+    for (auto iter : statusArr)
+        if (iter.second == checkAgainst)
             return true;
 
     return false;

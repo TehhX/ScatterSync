@@ -5,25 +5,33 @@
 #include <FileItem.hpp>
 
 #include <map>
-#include <string>
 
 #include <wx/panel.h>
 
 class FileList : public wxPanel {
+    enum Direction {
+        SC_UP,
+        SC_DOWN,
+        SC_NONE
+    };
+
     std::map<ManifestManip::Ident, FileItem*> fileItems;
 
-    int maxScroll { FileItem::itemMargin - WINDOW_SIZE_Y };
+    static constexpr int maxScrollDefault { FileItem::itemMargin - WINDOW_SIZE_Y };
+    int maxScroll { maxScrollDefault };
 
     void scroll(wxMouseEvent& me);
 
-public:
-    static constexpr int topMargin { 60 };
+    void scrollInBounds(Direction d = SC_NONE);
 
+public:
     FileList(wxWindow* parent);
 
     void intake();
 
     void createNewFile(wxCommandEvent&);
+
+    void removeFileItem(ManifestManip::Ident ident);
 
     void addFileItem(ManifestManip::Ident ident);
 

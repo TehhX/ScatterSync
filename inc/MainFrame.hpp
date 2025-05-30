@@ -7,22 +7,29 @@
 #include <Popups.hpp>
 
 #include <wx/frame.h>
-#include <wx/button.h>
+#include <wx/menu.h>
 
 class MainFrame : public wxFrame {
+    struct Settings {
+        u_char scrollSpeed;
+        bool autoSyncOnOpen;
+        bool exitPromptUnpushed;
+        bool initGitOnOpen;
+    };
+
     GitControl gCtrl;
 
-    wxButton* initBttn;
-    wxButton* syncBttn;
-    wxButton* settBttn;
-    wxButton* moveRepoBttn;
-    wxButton* moveLocalBttn;
-    wxButton* trackNewBttn;
+    wxMenuBar* menuBar;
+
+    wxMenu* menuFile;
+    wxMenu* menuEdit;
+    wxMenu* menuGit;
 
     SettingsFrame* settingsFrame;
 
     FileList* fileList;
 
+    // Gets button offset relative to passed previous button. If none/nullptr passed, use starting position
     static inline wxPoint getButtonOffset(wxButton* prev = nullptr) { return { (prev ? prev->GetPosition().x + prev->GetSize().x + 10 : 10), 15 }; }
 
     void closeWinEvent(wxCloseEvent&);
@@ -43,16 +50,7 @@ class MainFrame : public wxFrame {
     void moveAllLocalEvent(wxCommandEvent&);
 
 public:
-    struct Settings {
-        u_char scrollSpeed;
-        bool autoSyncOnOpen;
-        bool exitPromptUnpushed;
-        bool initGitOnOpen;
-    };
-
     static inline Settings settings {};
 
     MainFrame();
 };
-
-#undef UFC_EVENT_FUNC

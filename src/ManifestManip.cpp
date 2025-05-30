@@ -146,8 +146,8 @@ void ManifestManip::writeCloud() {
         fileStream << out;
     }
 
-    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
-        Ident ident { iter->first };
+    for (auto iter : userFileInfo) {
+        Ident ident { iter.first };
 
         writeIntegral(ident, IDENT);
         writeVariableLen(fileNameOf(ident));
@@ -159,17 +159,17 @@ void ManifestManip::writeCloud() {
 void ManifestManip::writeLocal() {
     openFile(LOCAL, WRITE);
 
-    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++) {
-        Ident ident { iter->first };
+    for (auto iter : userFileInfo) {
+        Ident ident { iter.first };
 
         writeIntegral(ident, IDENT);
         writeVariableLen(localDirOf(ident));
     }
 }
 
-void ManifestManip::_forEach_(std::function<void(Ident ident)> func) {
-    for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++)
-        func(iter->first);
+void ManifestManip::__forEach(std::function<void(Ident ident)> func) {
+    for (auto iter : userFileInfo)
+        func(iter.first);
 }
 
 ManifestManip::Ident ManifestManip::createNewFileElement() {

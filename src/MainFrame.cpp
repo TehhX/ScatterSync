@@ -7,12 +7,20 @@
 
 #include <iostream>
 
+enum MenuButtonID {
+    MOVE_REPO = wxID_HIGHEST + 1,
+    MOVE_LOCAL,
+    TRACK_NEW,
+    SETTINGS,
+    SYNC,
+    INIT
+};
+
 void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
         try {
             standardExit(ce);
-        }
-        catch (const GitCtrlErr& gce)   {
+        } catch (const GitCtrlErr& gce)   {
             switch (gce.errCode) {
             default:
                 std::cerr << "Unknown GCE error code.\n";
@@ -29,8 +37,7 @@ void MainFrame::closeWinEvent(wxCloseEvent& ce) {
                     standardExit(ce, false);
             }
         }
-    }
-    catch (const ManiManiErr& mme) {
+    } catch (const ManiManiErr& mme) {
         switch (mme.errCode) {
         default:
             std::cerr << "Unknown MME error code.\n";
@@ -105,36 +112,51 @@ void MainFrame::moveAllLocalEvent(wxCommandEvent& WXUNUSED(event)) {
 }
 
 MainFrame::MainFrame()
-: wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
+: wxFrame { nullptr, wxID_ANY, "Scatter Sync", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE ^ wxRESIZE_BORDER } {
     SetClientSize(WINDOW_SIZE);
     SetBackgroundColour(WXC_DGREY);
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 
-    fileList      = new FileList      { this };
+    // Prevents MainFrame from resizing things and being annoying. Does not have any practical purpose besides that.
+    new wxPanel { this, wxID_ANY, { 0, 0 }, { 0, 0 } };
+
+// Create special panels
     settingsFrame = new SettingsFrame { this };
+    fileList      = new FileList      { this };
 
-    initBttn = new wxButton { this, wxID_ANY, "Init", getButtonOffset() };
-    initBttn->Bind(wxEVT_BUTTON, &MainFrame::initEvent, this);
+// Create menubar and menus
+    menuBar = new wxMenuBar {};
+    menuBar->SetParent(this);
 
-    syncBttn = new wxButton { this, wxID_ANY, "Sync", getButtonOffset(initBttn) };
-    syncBttn->Bind(wxEVT_BUTTON, &MainFrame::syncEvent, this);
+    menuFile = new wxMenu {};
+        menuFile->Append(MOVE_REPO, "Move all to repo");
+        menuFile->Append(MOVE_LOCAL, "Move all to local");
+        menuFile->Append(TRACK_NEW, "Track new file");
+    menuBar->Append(menuFile, "File");
 
-    settBttn = new wxButton { this, wxID_ANY, "Settings", getButtonOffset(syncBttn) };
-    settBttn->Bind(wxEVT_BUTTON, &MainFrame::settEvent, this);
+    menuEdit = new wxMenu {};
+        menuEdit->Append(SETTINGS, "Settings");
+    menuBar->Append(menuEdit, "Edit");
 
-    moveRepoBttn = new wxButton { this, wxID_ANY, "Move All to Repo", getButtonOffset(settBttn) };
-    moveRepoBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllRepoEvent, this);
+    menuGit = new wxMenu {};
+        menuGit->Append(SYNC, "Synchronize");
+        menuGit->Append(INIT, "Initialize");
+    menuBar->Append(menuGit, "Git");
 
-    moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn) };
-    moveLocalBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllLocalEvent, this);
+    SetMenuBar(menuBar);
 
-    trackNewBttn = new wxButton { this, wxID_ANY, "Track New File", getButtonOffset(moveLocalBttn) };
-    trackNewBttn->Bind(wxEVT_BUTTON, &FileList::createNewFile, fileList);
+// Bind menu buttons
+    Bind(wxEVT_MENU, &MainFrame::moveAllRepoEvent,  this,     MOVE_REPO);
+    Bind(wxEVT_MENU, &MainFrame::moveAllLocalEvent, this,     MOVE_LOCAL);
+    Bind(wxEVT_MENU, &FileList::createNewFile,      fileList, TRACK_NEW);
+    Bind(wxEVT_MENU, &MainFrame::settEvent,         this,     SETTINGS);
+    Bind(wxEVT_MENU, &MainFrame::syncEvent,         this,     SYNC);
+    Bind(wxEVT_MENU, &MainFrame::initEvent,         this,     INIT);
 
+// On-open tasks
     if (settings.initGitOnOpen) {
         initEvent();
-
         // Can't auto sync if not initialized on open
         if (settings.autoSyncOnOpen)
             syncEvent();
