@@ -47,7 +47,6 @@ void GitControl::push(bool warnNotInRepo) {
     if (system("git push"))
         throw GitCtrlErr("Push failed.", GitCtrlErr::FAIL_MANIP);
 #endif
-
     isPushed = true;
 }
 

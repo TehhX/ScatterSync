@@ -141,8 +141,8 @@ const UserFileControl::Status& UserFileControl::registerNew(ManifestManip::Ident
 }
 
 bool UserFileControl::areAnyStatus(Status checkAgainst) {
-    for (auto iter { statusArr.begin() }; iter != statusArr.end(); iter++)
-        if (iter->second == checkAgainst)
+    for (auto iter : statusArr)
+        if (iter.second == checkAgainst)
             return true;
 
     return false;
