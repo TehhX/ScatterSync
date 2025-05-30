@@ -167,7 +167,7 @@ void ManifestManip::writeLocal() {
     }
 }
 
-void ManifestManip::_forEach_(std::function<void(Ident ident)> func) {
+void ManifestManip::__forEach(std::function<void(Ident ident)> func) {
     for (auto iter { userFileInfo.begin() }; iter != userFileInfo.end(); iter++)
         func(iter->first);
 }

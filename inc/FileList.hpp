@@ -16,6 +16,8 @@ class FileList : public wxPanel {
 
     void scroll(wxMouseEvent& me);
 
+    void scrollBoundsCheck();
+
 public:
     static constexpr int topMargin { 60 };
 
@@ -24,6 +26,8 @@ public:
     void intake();
 
     void createNewFile(wxCommandEvent&);
+
+    void removeFileItem(ManifestManip::Ident ident);
 
     void addFileItem(ManifestManip::Ident ident);
 

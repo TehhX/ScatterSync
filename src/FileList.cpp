@@ -4,21 +4,19 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
-void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
-    ManifestManip::Ident ident { ManifestManip::createNewFileElement() };
-
-    addFileItem(ident);
-}
+#define resetSize SetClientSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) })
 
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
     Hide();
-    SetBackgroundColour(WXC_DGREY);
+    SetTransparent(true);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     intake();
 
     Show();
+
+    std::cerr << GetPosition().y << '\n';
 }
 
 void FileList::intake() {
@@ -26,7 +24,24 @@ void FileList::intake() {
         pair.second->Destroy();
 
     fileItems.clear();
-    MANI_FOR_EACH(addFileItem(ident);)
+
+    maniManiForEach(addFileItem(ident);)
+}
+
+void FileList::createNewFile(wxCommandEvent& WXUNUSED(event)) {
+    ManifestManip::Ident ident { ManifestManip::createNewFileElement() };
+
+    addFileItem(ident);
+}
+
+void FileList::removeFileItem(ManifestManip::Ident ident) {
+    UserFileControl::takeAction(ident, UserFileControl::Action::UNTRACK);
+    intake();
+
+    maxScroll -= FileItem::itemHeight;
+    resetSize;
+
+    scrollBoundsCheck();
 }
 
 void FileList::addFileItem(ManifestManip::Ident ident) {
@@ -34,21 +49,26 @@ void FileList::addFileItem(ManifestManip::Ident ident) {
     fileItems.find(ident)->second->SetPosition({ 0, SC(int, FileItem::itemHeight * (fileItems.size() - 1) + FileItem::itemMargin) });
 
     maxScroll += FileItem::itemHeight;
-    SetSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) });
+    resetSize;
+
+    scrollBoundsCheck();
 }
 
 void FileList::scroll(wxMouseEvent& me) {
-    if (me.GetWheelRotation() > 0) {
+    if (me.GetWheelRotation() > 0)
         SetPosition({ 0, GetPosition().y + SC(int, MainFrame::settings.scrollSpeed) });
-
-        if (GetPosition().y > topMargin)
-            SetPosition({ 0, topMargin });
-    } else {
+    else
         SetPosition({ 0, GetPosition().y - SC(int, MainFrame::settings.scrollSpeed) });
 
-        if (GetPosition().y < -maxScroll)
-            SetPosition({ 0, -maxScroll });
-    }
+    scrollBoundsCheck();
+}
+
+void FileList::scrollBoundsCheck() {
+    if (GetPosition().y > topMargin)
+        SetPosition({ 0, topMargin });
+
+    else if (GetPosition().y < -maxScroll)
+        SetPosition({ 0, -maxScroll });
 }
 
 void FileList::submitAllUpdates() {

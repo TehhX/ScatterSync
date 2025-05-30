@@ -10,7 +10,7 @@
 #include <tuple>
 #include <functional>
 
-#define MANI_FOR_EACH(EXEC) ManifestManip::_forEach_({[&](ManifestManip::Ident ident) -> void { EXEC }});
+#define maniManiForEach(EXEC) ManifestManip::__forEach({[&](ManifestManip::Ident ident) -> void { EXEC }});
 
 class ManiManiErr : public ScatterSyncErr {
 public:
@@ -65,8 +65,8 @@ private:
 public:
     ManifestManip() = delete; // Entirely static class
 
-    // Use MANI_FOR_EACH(EXEC) instead of calling this directly.
-    static void _forEach_(std::function<void(Ident ident)> func);
+    // Use maniManiForEach(EXEC) instead of calling this directly.
+    static void __forEach(std::function<void(Ident ident)> func);
 
     static Ident createNewFileElement();
     static void removeFileElement(Ident ident);

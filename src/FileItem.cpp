@@ -8,8 +8,7 @@
 #include <algorithm>
 
 void FileItem::removeEvent(wxCommandEvent& WXUNUSED(event)) {
-    UserFileControl::takeAction(elementIdent, UserFileControl::Action::UNTRACK);
-    dynamic_cast<FileList*>(GetParent())->intake();
+    static_cast<FileList*>(GetParent())->removeFileItem(elementIdent);
 }
 
 FileItem::FileItem(wxWindow* parent, ManifestManip::Ident elementIdent)

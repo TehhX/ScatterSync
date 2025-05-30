@@ -48,7 +48,7 @@ void UserFileControl::init() {
 
     bool anyMissing { false };
 
-    MANI_FOR_EACH(searchForAndAssign(ident);)
+    maniManiForEach(searchForAndAssign(ident);)
 
     active = true;
 
@@ -121,7 +121,7 @@ void UserFileControl::takeAction(ManifestManip::Ident ident, Action action) {
 }
 
 void UserFileControl::takeActionsForEach(Action action) {
-    MANI_FOR_EACH(
+    maniManiForEach(
         try {
             takeAction(ident, action);
         } catch (const UserFileErr& ufe) {
