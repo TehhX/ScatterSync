@@ -103,7 +103,7 @@ void MainFrame::moveAllLocalEvent(wxCommandEvent& WXUNUSED(event)) {
 }
 
 MainFrame::MainFrame()
-: wxFrame { nullptr, wxID_ANY, "Scatter Sync" } {
+: wxFrame { nullptr, wxID_ANY, "Scatter Sync", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE ^ wxRESIZE_BORDER } {
     SetClientSize(WINDOW_SIZE);
     SetBackgroundColour(WXC_DGREY);
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);

@@ -4,11 +4,10 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
-#define resetSize() SetClientSize({ WINDOW_SIZE_X, SC(int, FileItem::itemHeight * fileItems.size() + FileItem::itemMargin) })
+#define resetSize() SetClientSize({ WINDOW_SIZE_X, SC(int, (FileItem::itemHeight + FileItem::itemMargin) * fileItems.size()) })
 
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
-    SetTransparent(true);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     intake();
@@ -41,9 +40,9 @@ void FileList::removeFileItem(ManifestManip::Ident ident) {
 
 void FileList::addFileItem(ManifestManip::Ident ident) {
     fileItems.insert({ ident, new FileItem { this, ident } });
-    fileItems.find(ident)->second->SetPosition({ 0, SC(int, FileItem::itemHeight * (fileItems.size() - 1) + FileItem::itemMargin) });
+    fileItems.find(ident)->second->SetPosition({ 0, SC(int, (FileItem::itemHeight + FileItem::itemMargin) * (fileItems.size() - 1)) });
 
-    maxScroll += FileItem::itemHeight;
+    maxScroll += FileItem::itemHeight + FileItem::itemMargin;
     resetSize();
 
     scrollBoundsCheck();
@@ -60,14 +59,14 @@ void FileList::scroll(wxMouseEvent& me) {
 
 void FileList::scrollBoundsCheck() {
     // Are enough elements to check bounds?
-    if (FileItem::itemMargin + FileItem::itemHeight * fileItems.size() <= WINDOW_SIZE_Y - topMargin)
+    if ((FileItem::itemMargin + FileItem::itemHeight) * fileItems.size() - FileItem::itemMargin <= WINDOW_SIZE_Y - topMargin)
         return SetPosition({ 0, topMargin });
 
     if (GetPosition().y > topMargin)
         SetPosition({ 0, topMargin });
 
     else if (GetPosition().y < -maxScroll)
-        SetPosition({ 0, -maxScroll });
+        SetPosition({ 0, -maxScroll + FileItem::itemMargin });
 }
 
 void FileList::submitAllUpdates() {
