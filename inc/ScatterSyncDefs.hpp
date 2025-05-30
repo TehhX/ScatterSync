@@ -19,3 +19,4 @@ using u_short = unsigned short;
 #define WXC_DGREY {  18,  18,  18 }
 #define WXC_LGREY {  64,  64,  64 }
 #define WXC_WHITE { 255, 255, 255 }
+#define WXC_RED   { 255,   0,   0 }

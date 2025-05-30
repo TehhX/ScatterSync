@@ -8,13 +8,10 @@
 
 FileList::FileList(wxWindow* parent)
 : wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
-    Hide();
     SetTransparent(true);
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     intake();
-
-    Show();
 }
 
 void FileList::intake() {

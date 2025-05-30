@@ -109,6 +109,10 @@ MainFrame::MainFrame()
     Bind(wxEVT_CLOSE_WINDOW, &MainFrame::closeWinEvent, this);
     Center();
 
+// Create special panels
+    settingsFrame = new SettingsFrame { this };
+    fileList      = new FileList      { this };
+
 // Create buttons
     initBttn      = new wxButton { this, wxID_ANY, "Init",                    getButtonOffset()              };
     syncBttn      = new wxButton { this, wxID_ANY, "Sync",                    getButtonOffset(initBttn)      };
@@ -116,10 +120,6 @@ MainFrame::MainFrame()
     moveRepoBttn  = new wxButton { this, wxID_ANY, "Move All to Repo",        getButtonOffset(settBttn)      };
     moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn)  };
     trackNewBttn  = new wxButton { this, wxID_ANY, "Track New File",          getButtonOffset(moveLocalBttn) };
-
-// Create special panels
-    settingsFrame = new SettingsFrame { this };
-    fileList      = new FileList      { this };
 
 // Bind buttons
     initBttn     ->Bind(wxEVT_BUTTON, &MainFrame::initEvent,         this);

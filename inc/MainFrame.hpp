@@ -10,6 +10,13 @@
 #include <wx/button.h>
 
 class MainFrame : public wxFrame {
+    struct Settings {
+        u_char scrollSpeed;
+        bool autoSyncOnOpen;
+        bool exitPromptUnpushed;
+        bool initGitOnOpen;
+    };
+
     GitControl gCtrl;
 
     wxButton* initBttn;
@@ -44,16 +51,7 @@ class MainFrame : public wxFrame {
     void moveAllLocalEvent(wxCommandEvent&);
 
 public:
-    struct Settings {
-        u_char scrollSpeed;
-        bool autoSyncOnOpen;
-        bool exitPromptUnpushed;
-        bool initGitOnOpen;
-    };
-
     static inline Settings settings {};
 
     MainFrame();
 };
-
-#undef UFC_EVENT_FUNC
