@@ -41,5 +41,8 @@ CMakeUserPresets.json
 # Build folder
 build/
 
-# Personal files
-PERSONAL_*.*
+# Ignore personal files, like scripts etc
+*_IGN_*
+
+# Testing environment for Scatter Sync
+TestingEnvironment/
