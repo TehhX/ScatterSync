@@ -9,6 +9,12 @@
 #include <wx/panel.h>
 
 class FileList : public wxPanel {
+    enum Direction {
+        SC_UP,
+        SC_DOWN,
+        SC_NONE
+    };
+
     std::map<ManifestManip::Ident, FileItem*> fileItems;
 
     static constexpr int maxScrollDefault { FileItem::itemMargin - WINDOW_SIZE_Y };
@@ -16,7 +22,7 @@ class FileList : public wxPanel {
 
     void scroll(wxMouseEvent& me);
 
-    void scrollBoundsCheck();
+    void scrollInBounds(Direction d = SC_NONE);
 
 public:
     FileList(wxWindow* parent);

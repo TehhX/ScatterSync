@@ -35,7 +35,7 @@ void FileList::removeFileItem(ManifestManip::Ident ident) {
 
     resetSize();
 
-    scrollBoundsCheck();
+    scrollInBounds();
 }
 
 void FileList::addFileItem(ManifestManip::Ident ident) {
@@ -45,30 +45,32 @@ void FileList::addFileItem(ManifestManip::Ident ident) {
     maxScroll += FileItem::itemHeight + FileItem::itemMargin;
     resetSize();
 
-    scrollBoundsCheck();
+    scrollInBounds();
 }
 
 void FileList::scroll(wxMouseEvent& me) {
-    if (me.GetWheelRotation() > 0)
-        SetPosition({ 0, GetPosition().y + SC(int, MainFrame::settings.scrollSpeed) });
-    else
-        SetPosition({ 0, GetPosition().y - SC(int, MainFrame::settings.scrollSpeed) });
-
-    scrollBoundsCheck();
+    int rot { me.GetWheelRotation() };
+    scrollInBounds(SIGN(rot, SC_UP, SC_DOWN, SC_NONE));
 }
 
-void FileList::scrollBoundsCheck() {
-    // Are enough elements to check bounds?
+void FileList::scrollInBounds(Direction d) {
     if ((FileItem::itemMargin + FileItem::itemHeight) * fileItems.size() - FileItem::itemMargin <= WINDOW_SIZE_Y) {
         SetPosition({ 0, 0 });
         return;
     }
 
-    if (GetPosition().y > 0)
-        SetPosition({ 0, 0 });
+    switch (d) {
+    default:
+        break;
 
-    else if (GetPosition().y < -maxScroll)
-        SetPosition({ 0, -maxScroll });
+    case SC_UP:
+        SetPosition({ 0, SC(int, std::min(0, GetPosition().y + SC(int, MainFrame::settings.scrollSpeed))) });
+        break;
+
+    case SC_DOWN:
+        SetPosition({ 0, SC(int, std::max(-maxScroll, GetPosition().y - SC(int, MainFrame::settings.scrollSpeed))) });
+        break;
+    }
 }
 
 void FileList::submitAllUpdates() {
