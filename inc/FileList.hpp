@@ -5,7 +5,6 @@
 #include <FileItem.hpp>
 
 #include <map>
-#include <string>
 
 #include <wx/panel.h>
 

@@ -19,6 +19,8 @@ class MainFrame : public wxFrame {
 
     GitControl gCtrl;
 
+    wxPanel* bttnPanel;
+
     wxButton* initBttn;
     wxButton* syncBttn;
     wxButton* settBttn;

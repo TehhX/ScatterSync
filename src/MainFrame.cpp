@@ -114,12 +114,15 @@ MainFrame::MainFrame()
     fileList      = new FileList      { this };
 
 // Create buttons
-    initBttn      = new wxButton { this, wxID_ANY, "Init",                    getButtonOffset()              };
-    syncBttn      = new wxButton { this, wxID_ANY, "Sync",                    getButtonOffset(initBttn)      };
-    settBttn      = new wxButton { this, wxID_ANY, "Settings",                getButtonOffset(syncBttn)      };
-    moveRepoBttn  = new wxButton { this, wxID_ANY, "Move All to Repo",        getButtonOffset(settBttn)      };
-    moveLocalBttn = new wxButton { this, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn)  };
-    trackNewBttn  = new wxButton { this, wxID_ANY, "Track New File",          getButtonOffset(moveLocalBttn) };
+    bttnPanel = new wxPanel { this, wxID_ANY, { 0, 0 }, { WINDOW_SIZE_X, FileList::topMargin } };
+    bttnPanel->SetBackgroundColour(WXC_DGREY);
+
+    initBttn      = new wxButton { bttnPanel, wxID_ANY, "Init",                    getButtonOffset()              };
+    syncBttn      = new wxButton { bttnPanel, wxID_ANY, "Sync",                    getButtonOffset(initBttn)      };
+    settBttn      = new wxButton { bttnPanel, wxID_ANY, "Settings",                getButtonOffset(syncBttn)      };
+    moveRepoBttn  = new wxButton { bttnPanel, wxID_ANY, "Move All to Repo",        getButtonOffset(settBttn)      };
+    moveLocalBttn = new wxButton { bttnPanel, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn)  };
+    trackNewBttn  = new wxButton { bttnPanel, wxID_ANY, "Track New File",          getButtonOffset(moveLocalBttn) };
 
 // Bind buttons
     initBttn     ->Bind(wxEVT_BUTTON, &MainFrame::initEvent,         this);
