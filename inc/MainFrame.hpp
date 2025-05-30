@@ -7,7 +7,7 @@
 #include <Popups.hpp>
 
 #include <wx/frame.h>
-#include <wx/button.h>
+#include <wx/menu.h>
 
 class MainFrame : public wxFrame {
     struct Settings {
@@ -19,14 +19,11 @@ class MainFrame : public wxFrame {
 
     GitControl gCtrl;
 
-    wxPanel* bttnPanel;
+    wxMenuBar* menuBar;
 
-    wxButton* initBttn;
-    wxButton* syncBttn;
-    wxButton* settBttn;
-    wxButton* moveRepoBttn;
-    wxButton* moveLocalBttn;
-    wxButton* trackNewBttn;
+    wxMenu* menuFile;
+    wxMenu* menuEdit;
+    wxMenu* menuGit;
 
     SettingsFrame* settingsFrame;
 

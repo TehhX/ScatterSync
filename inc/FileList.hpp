@@ -19,8 +19,6 @@ class FileList : public wxPanel {
     void scrollBoundsCheck();
 
 public:
-    static constexpr int topMargin { 60 };
-
     FileList(wxWindow* parent);
 
     void intake();

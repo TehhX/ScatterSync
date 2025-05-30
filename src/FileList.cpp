@@ -4,10 +4,10 @@
 #include <MainFrame.hpp>
 #include <ManifestManip.hpp>
 
-#define resetSize() SetClientSize({ WINDOW_SIZE_X, SC(int, (FileItem::itemHeight + FileItem::itemMargin) * fileItems.size()) })
+#define resetSize() SetClientSize({ WINDOW_SIZE_X, SC(int, (FileItem::itemHeight + FileItem::itemMargin) * fileItems.size()) - maxScrollDefault })
 
 FileList::FileList(wxWindow* parent)
-: wxPanel { parent, wxID_ANY, { 0, topMargin }, { WINDOW_SIZE_X, WINDOW_SIZE_Y - topMargin } } {
+: wxPanel { parent, wxID_ANY } {
     parent->Bind(wxEVT_MOUSEWHEEL, &FileList::scroll, this);
 
     intake();
@@ -59,14 +59,16 @@ void FileList::scroll(wxMouseEvent& me) {
 
 void FileList::scrollBoundsCheck() {
     // Are enough elements to check bounds?
-    if ((FileItem::itemMargin + FileItem::itemHeight) * fileItems.size() - FileItem::itemMargin <= WINDOW_SIZE_Y - topMargin)
-        return SetPosition({ 0, topMargin });
+    if ((FileItem::itemMargin + FileItem::itemHeight) * fileItems.size() - FileItem::itemMargin <= WINDOW_SIZE_Y) {
+        SetPosition({ 0, 0 });
+        return;
+    }
 
-    if (GetPosition().y > topMargin)
-        SetPosition({ 0, topMargin });
+    if (GetPosition().y > 0)
+        SetPosition({ 0, 0 });
 
     else if (GetPosition().y < -maxScroll)
-        SetPosition({ 0, -maxScroll + FileItem::itemMargin });
+        SetPosition({ 0, -maxScroll });
 }
 
 void FileList::submitAllUpdates() {

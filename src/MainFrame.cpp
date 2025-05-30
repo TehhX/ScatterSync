@@ -7,6 +7,15 @@
 
 #include <iostream>
 
+enum MenuButtonID {
+    MOVE_REPO = wxID_HIGHEST + 1,
+    MOVE_LOCAL,
+    TRACK_NEW,
+    SETTINGS,
+    SYNC,
+    INIT
+};
+
 void MainFrame::closeWinEvent(wxCloseEvent& ce) {
     try {
         try {
@@ -113,24 +122,34 @@ MainFrame::MainFrame()
     settingsFrame = new SettingsFrame { this };
     fileList      = new FileList      { this };
 
-// Create buttons
-    bttnPanel = new wxPanel { this, wxID_ANY, { 0, 0 }, { WINDOW_SIZE_X, FileList::topMargin } };
-    bttnPanel->SetBackgroundColour(WXC_DGREY);
+// Create menubar and menus
+    menuBar = new wxMenuBar {};
+    menuBar->SetParent(this);
 
-    initBttn      = new wxButton { bttnPanel, wxID_ANY, "Init",                    getButtonOffset()              };
-    syncBttn      = new wxButton { bttnPanel, wxID_ANY, "Sync",                    getButtonOffset(initBttn)      };
-    settBttn      = new wxButton { bttnPanel, wxID_ANY, "Settings",                getButtonOffset(syncBttn)      };
-    moveRepoBttn  = new wxButton { bttnPanel, wxID_ANY, "Move All to Repo",        getButtonOffset(settBttn)      };
-    moveLocalBttn = new wxButton { bttnPanel, wxID_ANY, "Move All to Local Paths", getButtonOffset(moveRepoBttn)  };
-    trackNewBttn  = new wxButton { bttnPanel, wxID_ANY, "Track New File",          getButtonOffset(moveLocalBttn) };
+    menuFile = new wxMenu {};
+        menuFile->Append(MOVE_REPO, "Move all to repo");
+        menuFile->Append(MOVE_LOCAL, "Move all to local");
+        menuFile->Append(TRACK_NEW, "Track new file");
+    menuBar->Append(menuFile, "File");
 
-// Bind buttons
-    initBttn     ->Bind(wxEVT_BUTTON, &MainFrame::initEvent,         this);
-    syncBttn     ->Bind(wxEVT_BUTTON, &MainFrame::syncEvent,         this);
-    settBttn     ->Bind(wxEVT_BUTTON, &MainFrame::settEvent,         this);
-    moveRepoBttn ->Bind(wxEVT_BUTTON, &MainFrame::moveAllRepoEvent,  this);
-    moveLocalBttn->Bind(wxEVT_BUTTON, &MainFrame::moveAllLocalEvent, this);
-    trackNewBttn ->Bind(wxEVT_BUTTON, &FileList::createNewFile,      fileList);
+    menuEdit = new wxMenu {};
+        menuEdit->Append(SETTINGS, "Settings");
+    menuBar->Append(menuEdit, "Edit");
+
+    menuGit = new wxMenu {};
+        menuGit->Append(SYNC, "Synchronize");
+        menuGit->Append(INIT, "Initialize");
+    menuBar->Append(menuGit, "Git");
+
+    SetMenuBar(menuBar);
+
+// Bind menu buttons
+    Bind(wxEVT_MENU, &MainFrame::moveAllRepoEvent,  this,     MOVE_REPO);
+    Bind(wxEVT_MENU, &MainFrame::moveAllLocalEvent, this,     MOVE_LOCAL);
+    Bind(wxEVT_MENU, &FileList::createNewFile,      fileList, TRACK_NEW);
+    Bind(wxEVT_MENU, &MainFrame::settEvent,         this,     SETTINGS);
+    Bind(wxEVT_MENU, &MainFrame::syncEvent,         this,     SYNC);
+    Bind(wxEVT_MENU, &MainFrame::initEvent,         this,     INIT);
 
 // On-open tasks
     if (settings.initGitOnOpen) {
