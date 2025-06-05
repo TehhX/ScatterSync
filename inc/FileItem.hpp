@@ -8,15 +8,21 @@
 #include <wx/panel.h>
 #include <wx/textctrl.h>
 #include <wx/button.h>
+#include <wx/filedlg.h>
 
 class FileItem : public wxPanel {
     wxTextCtrl* genNameField;
     wxTextCtrl* dirField;
     wxTextCtrl* nameField;
 
-    wxButton* removeBttn;
+    wxFileDialog* fileBrowser;
 
-    void removeEvent(wxCommandEvent& ce);
+    wxButton* untrackBttn;
+    wxButton* fileBrowserBttn;
+
+    void untrackEvent(wxCommandEvent& ce);
+
+    void browserEvent(wxCommandEvent& ce);
 
 public:
     const ManifestManip::Ident elementIdent;
